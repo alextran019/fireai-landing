@@ -1,0 +1,64 @@
+# FireAI Landing Page - .gitignore
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies (nếu có)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build files (nếu có build process)
+dist/
+build/
+*.min.js
+*.min.css
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Config files (nếu không muốn commit)
+# config/local-config.json
+
+# Lưu ý: KHÔNG ignore các file sau (cần commit):
+# - index.html
+# - config/fireai-config.json
+# - assets/css/fireai-landing.css
+# - assets/js/fireai-landing.js
+# - assets/images/*.jpg, *.png, etc.
+

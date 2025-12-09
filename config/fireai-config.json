@@ -1,0 +1,167 @@
+{
+  "hero": {
+    "enable": true,
+    "video_id": "",
+    "title": "TẮT BÁO ĐỘNG GIẢ, BẬT PHẢN ỨNG THẬT",
+    "subtitle": "Bảo vệ ngôi nhà với cảnh báo có địa chỉ, truyền tin đa kênh và lắp đặt nhanh.",
+    "stat_text": "90% CÁC VỤ CHÁY NHÀ DÂN THƯỜNG BẮT ĐẦU VÀO BAN ĐÊM.",
+    "stat_subtext": "Đừng Để Hệ Thống CŨ KHÔNG ĐỊA CHỈ BIẾN NHÀ BẠN THÀNH 'HỘP ĐEN' TRONG 3 PHÚT!",
+    "product_title": "HỆ THỐNG BÁO CHÁY KHÔNG DÂY ĐỊA CHỈ FIREAI",
+    "product_tagline": "\"Truyền Tin Nhanh Hơn Cả Tốc Độ Lửa Lan – Cảnh Báo Chuẩn Xác Vị Trí, Truyền Đến Lực Lượng Chữa Cháy Trong Tíc Tắc.\"",
+    "usp_enable": true,
+    "usps": [
+      "Phát hiện có địa chỉ, cảnh báo rõ ràng vị trí",
+      "Kết nối đa kênh 4G/Wifi/Ethernet, truyền tin nhanh",
+      "Lắp đặt không dây trong 1 giờ, phù hợp công trình hoàn thiện"
+    ],
+    "cta_primary_text": "Đăng ký tư vấn ngay",
+    "cta_primary_link": "#fireai-form",
+    "cta_secondary_text": "Xem video 60s",
+    "cta_secondary_link": "#fireai-video",
+    "image_enable": true,
+    "image_url": "assets/images/fireai_hero_image.jpg"
+  },
+  "video": {
+    "enable": true,
+    "caption": "Xem 60s demo",
+    "cta_text": "Tư vấn nhanh",
+    "bullets_enable": true,
+    "bullets": [
+      "Giảm báo động giả, phát hiện chính xác vị trí",
+      "Kết nối đa kênh, truyền tin trong tích tắc",
+      "Lắp đặt không dây nhanh gọn cho công trình hoàn thiện"
+    ]
+  },
+  "trust": {
+    "enable": true,
+    "badges": [
+      "🇻🇳 Xuất xứ Việt Nam",
+      "✅ Đạt TCVN 7568, TCVN 3890:2023",
+      "🔒 Công nghệ Zigbee Mesh Network",
+      "📡 Kết nối 4G/Wifi Đa Kênh"
+    ]
+  },
+  "certification": {
+    "enable": true,
+    "title": "KHÔNG CHỈ LÀ THIẾT BỊ, ĐÓ LÀ GIẢI PHÁP ĐƯỢC CHỨNG NHẬN",
+    "subtitle": "Sự tuân thủ tiêu chuẩn là sinh mệnh trong lĩnh vực PCCC. FireAI không đánh đổi điều đó:",
+    "items": [
+      {
+        "icon": "📋",
+        "title": "Tuân thủ TCVN 7568-11, 7568-25:2023",
+        "text": "Đảm bảo các thiết bị báo cháy không dây hoạt động ổn định và tin cậy theo Tiêu chuẩn Quốc gia."
+      },
+      {
+        "icon": "📋",
+        "title": "Đồng bộ TCVN 3890:2023",
+        "text": "Giải pháp thiết kế để đáp ứng quy định mới nhất về trang bị, bố trí phương tiện PCCC."
+      },
+      {
+        "icon": "🌐",
+        "title": "ISO 9001:2015",
+        "text": "Quy trình sản xuất và chất lượng sản phẩm được kiểm soát theo tiêu chuẩn quốc tế."
+      }
+    ]
+  },
+  "features": {
+    "enable": true,
+    "items": [
+      {
+        "icon": "💡",
+        "title": "Báo Cháy CÓ ĐỊA CHỈ",
+        "text": "Biết chính xác vị trí đang cháy, giúp giảm thời gian tìm kiếm và thoát hiểm."
+      },
+      {
+        "icon": "🚀",
+        "title": "Truyền Tin Tốc Độ 4G/Wifi/Ethernet",
+        "text": "Tủ trung tâm tự động gửi cảnh báo qua nhiều kênh, đảm bảo thông báo đến bạn và các bên liên quan (Cảnh sát PCCC) ngay lập tức."
+      },
+      {
+        "icon": "🔋",
+        "title": "Không Dây Lắp Đặt 1 Giờ",
+        "text": "Công nghệ Zigbee mesh network ổn định, lý tưởng cho mọi công trình đã hoàn thiện."
+      }
+    ]
+  },
+  "problem": {
+    "enable": true,
+    "title": "HỆ THỐNG CŨ ĐANG THẤT BẠI VỚI BẠN",
+    "column_title": "Các hệ thống báo cháy không dây phổ thông đối mặt với hai vấn đề lớn:",
+    "items": [
+      {
+        "title": "Mất kết nối & Báo động trễ",
+        "text": "Độ tin cậy đường truyền kém, đặc biệt tại môi trường đô thị nhiều vật cản. Hệ thống FireAI được thiết kế để phát hiện mất kết nối thiết bị con sau tối đa 300 giây."
+      },
+      {
+        "title": "Rào Cản Lắp Đặt",
+        "text": "Hệ thống có dây tốn chi phí và thời gian đi dây phức tạp. Hệ thống độc lập chỉ \"kêu\" tại chỗ, không có khả năng quản lý tập trung theo quy định."
+      },
+      {
+        "title": "Thách Thức Phát Hiện",
+        "text": "Đầu báo khói cũ dễ bị nhầm lẫn giữa khói trắng và khói đen."
+      }
+    ]
+  },
+  "solution": {
+    "column_title": "GIẢI PHÁP ĐỘT PHÁ VỚI FIREAI",
+    "items": [
+      {
+        "title": "Ổn Định Vượt Trội",
+        "text": "FireAI sử dụng công nghệ Zigbee mesh network trên tiêu chuẩn 802.15.4. • Độ tin cậy cao: Vượt trội so với các hệ thống mạng không dây dùng bước sóng dài (RF433, Lora). • Phạm vi mở rộng: Mỗi thiết bị ngoại vi là router (FWC-01, FWB-01) giúp tủ trung tâm kết nối thêm 15 thiết bị con. • Phạm vi kết nối: Đạt 20m–30m đối với môi trường trong nhà."
+      },
+      {
+        "title": "Phát Hiện Đa Dạng",
+        "text": "• Đầu báo khói FWS-01 tích hợp sensor 2IR phát hiện cả khói đen và khói trắng. • Đầu báo nhiệt FWH-01 cảnh báo cháy khi đạt 57°C ± 1°C"
+      },
+      {
+        "title": "Quản Lý Tối Ưu",
+        "text": "• Tủ trung tâm kết nối với Mobile App qua 4G, Ethernet hoặc Wi-Fi. • Pin dự phòng cho Tổ hợp chuông đèn nút nhấn FWC-01 hoạt động 24h sau khi mất điện."
+      }
+    ]
+  },
+  "faq": {
+    "enable": true,
+    "title": "XỬ LÝ TỪ CHỐI NGAY LẬP TỨC (Q&A)",
+    "items": [
+      {
+        "question": "I. GIÁ CÓ QUÁ CAO KHÔNG?",
+        "answer": "Tối ưu hóa Chi phí: Công nghệ không dây địa chỉ Zigbee loại bỏ 90% chi phí đi dây. Đầu tư cho sự bình yên: Chi phí lắp đặt là khoản bảo hiểm an toàn cho tài sản."
+      },
+      {
+        "question": "II. LẮP ĐẶT VÀ BẢO TRÌ CÓ PHỨC TẠP KHÔNG?",
+        "answer": "Lắp đặt Đơn giản: Các thiết bị tự động kết nối (Plug & Play). Tuân thủ Bảo trì: Chúng tôi cung cấp quy trình kiểm tra, bảo dưỡng định kỳ theo quy định TCVN."
+      },
+      {
+        "question": "III. SẢN PHẨM CÓ ĐÁP ỨNG QUY ĐỊNH PHÁP LUẬT KHÔNG?",
+        "answer": "Tiêu chuẩn Quốc gia: Tủ trung tâm và đầu báo đáp ứng TCVN 7568. Kết nối Chuyên ngành: Hệ thống phải được kết nối truyền tin báo sự cố đến Cảnh sát PCCC theo quy định."
+      }
+    ]
+  },
+  "cta": {
+    "enable": true,
+    "title": "CHỈ CÒN DUY NHẤT HÔM NAY",
+    "subtitle": "Đừng để sự trì hoãn làm mất đi \"thời gian vàng\" của bạn.",
+    "slot_badge_enable": true,
+    "slot_badge_text": "Chỉ còn 30 suất tư vấn miễn phí trong tháng",
+    "offer_title": "FireAI dành tặng 30 Khách Hàng Đầu Tiên đăng ký tư vấn:",
+    "offers": [
+      "Miễn Phí Khảo sát và Thiết kế Hệ thống Báo cháy Không dây Địa chỉ.",
+      "Tặng kèm 01 Đầu báo Khói/Nhiệt Độc lập Pin 10 năm.",
+      "Tặng kèm 01 bình chữa cháy gốc nước"
+    ]
+  },
+  "form": {
+    "title": "Đăng ký tư vấn ngay",
+    "action_url": "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse",
+    "placeholder_name": "Họ và tên",
+    "placeholder_phone": "Số điện thoại",
+    "placeholder_content": "Nội dung câu hỏi (tùy chọn)",
+    "entry_name": "entry.123456789",
+    "entry_phone": "entry.987654321",
+    "entry_content": "entry.111222333",
+    "button_text": "Gửi yêu cầu tư vấn",
+    "popup_title": "Cảm ơn bạn!",
+    "popup_content": "Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất."
+  }
+}
+

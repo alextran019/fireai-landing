@@ -1,0 +1,1370 @@
+@charset "UTF-8";
+/* ============================================
+   FIREAI LANDING PAGE STYLES
+   ============================================ */
+.layoutPage-fireai-landing {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+.layoutPage-fireai-landing .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ====== HOOK & TRUST BUILDER ====== */
+.section-fireai-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
+  color: #333;
+  padding: 80px 0 100px;
+  position: relative;
+  overflow: hidden;
+}
+.section-fireai-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 75, 0, 0.05) 0%, transparent 50%), radial-gradient(circle at 70% 80%, rgba(255, 75, 0, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+.section-fireai-hero .fireai-hero-content {
+  position: relative;
+  z-index: 1;
+}
+.section-fireai-hero .fireai-hero-title {
+  font-size: 52px;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #ff4b00 0%, #ff6b35 50%, #ff8c42 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 10px rgba(255, 75, 0, 0.2);
+  animation: fadeInUp 0.8s ease-out;
+  position: relative;
+  padding-bottom: 20px;
+}
+.section-fireai-hero .fireai-hero-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #ff4b00, transparent);
+  border-radius: 2px;
+}
+.section-fireai-hero .hero-subtitle {
+  text-align: center;
+  font-size: 18px;
+  color: #1f2937;
+  margin: -10px auto 22px;
+  max-width: 760px;
+  font-weight: 600;
+}
+.section-fireai-hero .fireai-hero-stat {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(255, 75, 0, 0.08) 0%, rgba(255, 107, 53, 0.05) 100%);
+  border-radius: 20px;
+  border: 2px solid rgba(255, 75, 0, 0.15);
+  box-shadow: 0 8px 30px rgba(255, 75, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.section-fireai-hero .fireai-hero-stat::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 75, 0, 0.1) 0%, transparent 70%);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+.section-fireai-hero .fireai-hero-stat .stat-text {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 15px;
+  color: #ff4b00;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 8px rgba(255, 75, 0, 0.2);
+  letter-spacing: 1px;
+}
+.section-fireai-hero .fireai-hero-stat .stat-text strong {
+  display: inline-block;
+  padding: 5px 15px;
+  background: linear-gradient(135deg, rgba(255, 75, 0, 0.15), rgba(255, 107, 53, 0.1));
+  border-radius: 8px;
+  border-left: 4px solid #ff4b00;
+}
+.section-fireai-hero .fireai-hero-stat .stat-subtext {
+  font-size: 20px;
+  color: #1a1a2e;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.section-fireai-hero .hero-cta-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 10px auto 24px;
+}
+.section-fireai-hero .hero-cta-buttons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 10px 25px rgba(255, 75, 0, 0.2);
+}
+.section-fireai-hero .hero-cta-buttons .btn-hero-primary {
+  background: linear-gradient(135deg, #ff4b00 0%, #ff6b35 100%);
+  color: #fff;
+  border: none;
+}
+.section-fireai-hero .hero-cta-buttons .btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(255, 75, 0, 0.25);
+}
+.section-fireai-hero .hero-cta-buttons .btn-hero-secondary {
+  background: #fff;
+  color: #ff4b00;
+  border: 2px solid rgba(255, 75, 0, 0.2);
+}
+.section-fireai-hero .hero-cta-buttons .btn-hero-secondary:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 75, 0, 0.4);
+  box-shadow: 0 10px 24px rgba(255, 75, 0, 0.15);
+}
+.section-fireai-hero .hero-usps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0 auto 30px;
+  max-width: 900px;
+  padding: 0;
+}
+.section-fireai-hero .hero-usps li {
+  background: #fff;
+  border: 1px solid rgba(255, 75, 0, 0.1);
+  border-left: 4px solid #ff4b00;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+.section-fireai-hero .fireai-hero-product {
+  text-align: center;
+  margin-bottom: 50px;
+  animation: fadeInUp 0.8s ease-out 0.6s both;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper {
+  margin-bottom: 30px;
+  position: relative;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  background: #0f172a;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster,
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-iframe-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster {
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45));
+  border-radius: 12px;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster .video-play-btn {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.9);
+  color: #ff4b00;
+  border: none;
+  border-radius: 999px;
+  padding: 16px 22px;
+  font-weight: 900;
+  font-size: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster .video-caption {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster:hover .video-play-btn {
+  transform: scale(1.05);
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .video-poster.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-container .hero-video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-placeholder {
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #6c757d;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-cta-inline {
+  margin-top: 12px;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-cta-inline .btn-video-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 75, 0, 0.25);
+  color: #ff4b00;
+  font-weight: 800;
+  background: #fff7f3;
+  box-shadow: 0 6px 16px rgba(255, 75, 0, 0.12);
+  transition: all 0.2s ease;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-cta-inline .btn-video-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(255, 75, 0, 0.18);
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-bullets {
+  margin: 18px auto 0;
+  max-width: 820px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+}
+.section-fireai-hero .fireai-hero-product .product-video-wrapper .video-bullets li {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff7f3;
+  color: #1f2937;
+  font-weight: 600;
+  border: 1px solid rgba(255, 75, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(255, 75, 0, 0.08);
+}
+.section-fireai-hero .fireai-hero-product .product-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #333;
+}
+.section-fireai-hero .fireai-hero-product .product-tagline {
+  font-size: 18px;
+  color: #555;
+  font-style: italic;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.section-fireai-hero .fireai-trust-badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(255, 75, 0, 0.03) 0%, rgba(255, 107, 53, 0.02) 100%);
+  border-radius: 16px;
+  position: relative;
+}
+.section-fireai-hero .fireai-trust-badges .trust-badge-item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid rgba(255, 75, 0, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+.section-fireai-hero .fireai-trust-badges .trust-badge-item .badge-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #fff3e8, #ffe9df);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ff4b00;
+  font-weight: 900;
+  font-size: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.section-fireai-hero .fireai-trust-badges .trust-badge-item .badge-text {
+  display: block;
+  line-height: 1.4;
+}
+.section-fireai-hero .fireai-trust-badges .trust-badge-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(255, 75, 0, 0.15);
+}
+.section-fireai-hero .fireai-certification {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 50px;
+}
+.section-fireai-hero .fireai-certification .cert-title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 15px;
+  color: #ff4b00;
+}
+.section-fireai-hero .fireai-certification .cert-subtitle {
+  text-align: center;
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 30px;
+}
+.section-fireai-hero .fireai-certification .cert-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+.section-fireai-hero .fireai-certification .cert-list .cert-item {
+  display: flex;
+  gap: 15px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.section-fireai-hero .fireai-certification .cert-list .cert-item:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+.section-fireai-hero .fireai-certification .cert-list .cert-item .cert-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+.section-fireai-hero .fireai-certification .cert-list .cert-item .cert-content h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #333;
+}
+.section-fireai-hero .fireai-certification .cert-list .cert-item .cert-content p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+}
+.section-fireai-hero {
+  /* ====== HERO IMAGE SECTION ====== */
+}
+.section-fireai-hero .fireai-hero-image-section {
+  background: linear-gradient(135deg, rgba(255, 75, 0, 0.02) 0%, rgba(255, 107, 53, 0.01) 100%);
+  padding: 60px 0;
+  margin: 50px 0;
+  position: relative;
+  overflow: hidden;
+}
+.section-fireai-hero .fireai-hero-image-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(255, 75, 0, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+.section-fireai-hero .fireai-hero-image-section .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+.section-fireai-hero .fireai-hero-image-section .fireai-hero-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  animation: fadeInScale 1s ease-out 0.3s both;
+  position: relative;
+}
+.section-fireai-hero .fireai-hero-image-section .fireai-hero-image-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110%;
+  height: 110%;
+  background: linear-gradient(135deg, rgba(255, 75, 0, 0.1), rgba(255, 107, 53, 0.1));
+  border-radius: 20px;
+  z-index: -1;
+  filter: blur(20px);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+.section-fireai-hero .fireai-hero-image-section .fireai-hero-image-wrapper .fireai-hero-image {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(255, 75, 0, 0.2), 0 0 0 4px rgba(255, 75, 0, 0.1), 0 0 0 8px rgba(255, 107, 53, 0.05);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+.section-fireai-hero .fireai-hero-image-section .fireai-hero-image-wrapper .fireai-hero-image:hover {
+  transform: scale(1.03) translateY(-5px);
+  box-shadow: 0 20px 60px rgba(255, 75, 0, 0.3), 0 0 0 4px rgba(255, 75, 0, 0.2), 0 0 0 8px rgba(255, 107, 53, 0.1);
+}
+.section-fireai-hero .fireai-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+.section-fireai-hero .fireai-features-grid .feature-item {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 26px;
+  text-align: center;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+.section-fireai-hero .fireai-features-grid .feature-item:hover {
+  background: #fff;
+  transform: translateY(-6px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+}
+.section-fireai-hero .fireai-features-grid .feature-item .feature-icon {
+  font-size: 48px;
+  margin-bottom: 14px;
+  display: block;
+  color: #ff4b00;
+}
+.section-fireai-hero .fireai-features-grid .feature-item h4 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.section-fireai-hero .fireai-features-grid .feature-item p {
+  font-size: 14px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+/* ====== PROBLEM & SOLUTION ====== */
+.section-fireai-problem {
+  background: #ffffff;
+  padding: 100px 0;
+}
+.section-fireai-problem .problem-section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.section-fireai-problem .problem-section-header .section-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.section-fireai-problem .problem-solution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 40px;
+}
+.section-fireai-problem .problem-solution-grid .problem-column,
+.section-fireai-problem .problem-solution-grid .solution-column {
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+.section-fireai-problem .problem-solution-grid .problem-column .column-title,
+.section-fireai-problem .problem-solution-grid .solution-column .column-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #1a1a2e;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #ff4b00;
+}
+.section-fireai-problem .problem-solution-grid .problem-column .solution-title,
+.section-fireai-problem .problem-solution-grid .solution-column .solution-title {
+  color: #ff4b00;
+}
+.section-fireai-problem .problem-solution-grid .problem-column {
+  background: rgba(255, 75, 0, 0.03);
+}
+.section-fireai-problem .problem-solution-grid .solution-column {
+  background: rgba(34, 197, 94, 0.05);
+  border-color: rgba(34, 197, 94, 0.08);
+}
+.section-fireai-problem .problem-solution-grid .solution-column .column-title {
+  border-bottom-color: #22c55e;
+}
+.section-fireai-problem .problem-solution-grid .problem-item,
+.section-fireai-problem .problem-solution-grid .solution-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+.section-fireai-problem .problem-solution-grid .problem-item:hover,
+.section-fireai-problem .problem-solution-grid .solution-item:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-icon,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-icon,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-icon,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-icon {
+  font-size: 28px;
+  margin-bottom: 15px;
+  display: block;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content h4,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content h4,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content h4,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content h4 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #1a1a2e;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .problem-text,
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-text,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .problem-text,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-text,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .problem-text,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-text,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .problem-text,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-text {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.7;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .problem-text p,
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-text p,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .problem-text p,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-text p,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .problem-text p,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-text p,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .problem-text p,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-text p {
+  margin-bottom: 10px;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .problem-text p:last-child,
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-text p:last-child,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .problem-text p:last-child,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-text p:last-child,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .problem-text p:last-child,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-text p:last-child,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .problem-text p:last-child,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-text p:last-child {
+  margin-bottom: 0;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .problem-text strong,
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-text strong,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .problem-text strong,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-text strong,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .problem-text strong,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-text strong,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .problem-text strong,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-text strong {
+  display: block;
+  margin-top: 15px;
+  padding: 12px 15px;
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #856404;
+  font-weight: 600;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-list,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-list,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-list,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-list li,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-list li,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-list li,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-list li {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.8;
+  padding-left: 25px;
+  position: relative;
+  margin-bottom: 10px;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-list li::before,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-list li::before,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-list li::before,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+  font-size: 18px;
+}
+.section-fireai-problem .problem-solution-grid .problem-item .problem-content .solution-list li strong,
+.section-fireai-problem .problem-solution-grid .problem-item .solution-content .solution-list li strong,
+.section-fireai-problem .problem-solution-grid .solution-item .problem-content .solution-list li strong,
+.section-fireai-problem .problem-solution-grid .solution-item .solution-content .solution-list li strong {
+  color: #1a1a2e;
+}
+.section-fireai-problem .problem-solution-grid .solution-item {
+  border-left: 4px solid #28a745;
+}
+.section-fireai-problem .problem-solution-grid .problem-item {
+  border-left: 4px solid #dc3545;
+}
+
+/* ====== OBJECTION HANDLING (FAQ) ====== */
+.section-fireai-faq {
+  background: #ffffff;
+  padding: 100px 0;
+}
+.section-fireai-faq .faq-section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.section-fireai-faq .faq-section-header .section-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.section-fireai-faq .faq-section-header .faq-cta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fff7f3;
+  color: #ff4b00;
+  font-weight: 700;
+  border: 1px solid rgba(255, 75, 0, 0.2);
+  box-shadow: 0 6px 12px rgba(255, 75, 0, 0.15);
+  transition: all 0.2s ease;
+}
+.section-fireai-faq .faq-section-header .faq-cta-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 75, 0, 0.2);
+}
+.section-fireai-faq .faq-accordion {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.section-fireai-faq .faq-accordion .faq-item {
+  background: #fff;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.section-fireai-faq .faq-accordion .faq-item:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  cursor: pointer;
+  background: #f8f9fa;
+  color: #333;
+  transition: all 0.3s ease;
+  border: 1px solid #dee2e6;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-question:hover {
+  background: #e9ecef;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-question h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-question .faq-toggle {
+  font-size: 32px;
+  font-weight: 300;
+  transition: transform 0.3s ease;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-answer .answer-content {
+  padding: 0 30px;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-answer .answer-content p {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 15px;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-answer .answer-content p:last-child {
+  margin-bottom: 0;
+}
+.section-fireai-faq .faq-accordion .faq-item .faq-answer .answer-content p strong {
+  color: #1a1a2e;
+  font-weight: 700;
+}
+.section-fireai-faq .faq-accordion .faq-item.active .faq-question {
+  background: #ff4b00;
+  color: #fff;
+}
+.section-fireai-faq .faq-accordion .faq-item.active .faq-question .faq-toggle {
+  transform: rotate(45deg);
+}
+.section-fireai-faq .faq-accordion .faq-item.active .faq-answer {
+  max-height: 500px;
+  padding: 25px 0;
+}
+
+/* ====== CALL TO ACTION ====== */
+.section-fireai-cta {
+  background: linear-gradient(135deg, #ff4b00 0%, #ff6b35 50%, #ffa500 100%);
+  color: #fff;
+  padding: 100px 0;
+  position: relative;
+  overflow: hidden;
+}
+.section-fireai-cta::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+.section-fireai-cta .cta-content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.section-fireai-cta .cta-header {
+  margin-bottom: 50px;
+}
+.section-fireai-cta .cta-header .cta-title-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 20px 40px;
+}
+.section-fireai-cta .cta-header .cta-title-wrapper .cta-title {
+  font-size: 52px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  position: relative;
+  z-index: 3;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 75, 0, 0.5), 2px 2px 8px rgba(0, 0, 0, 0.3);
+  animation: titlePulse 2.5s ease-in-out infinite;
+  transform-origin: center;
+}
+.section-fireai-cta .cta-header .cta-title-wrapper .cta-title-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 75, 0, 0.3) 30%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+  animation: glowPulse 2s ease-in-out infinite;
+  filter: blur(20px);
+}
+.section-fireai-cta .cta-header .cta-title-wrapper .cta-flash-effect {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  z-index: 2;
+  animation: flashSweep 3s ease-in-out infinite;
+}
+.section-fireai-cta .cta-header .cta-subtitle {
+  font-size: 20px;
+  font-weight: 500;
+  opacity: 0.95;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+.section-fireai-cta .cta-header .cta-slot-badge {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+.section-fireai-cta .cta-offer {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+.section-fireai-cta .cta-offer .offer-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #1a1a2e;
+}
+.section-fireai-cta .cta-offer .offer-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.section-fireai-cta .cta-offer .offer-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  font-size: 18px;
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #ff4b00;
+  transition: all 0.3s ease;
+}
+.section-fireai-cta .cta-offer .offer-list li:hover {
+  background: #ffffff;
+  transform: translateX(10px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.section-fireai-cta .cta-offer .offer-list li:last-child {
+  margin-bottom: 0;
+}
+.section-fireai-cta .cta-offer .offer-list li .offer-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  color: #28a745;
+}
+.section-fireai-cta .cta-offer .offer-list li .offer-text {
+  flex: 1;
+  line-height: 1.6;
+  color: #333;
+  font-weight: 500;
+}
+.section-fireai-cta .cta-form-wrapper {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper {
+  background: transparent;
+  padding: 0;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .form-title-custom-fireai h3 {
+  color: #ff4b00;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .contact-form .input-group {
+  margin-bottom: 20px;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .contact-form .input-group .form-control {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px 20px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .contact-form .input-group .form-control:focus {
+  border-color: #ff4b00;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 75, 0, 0.1);
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .contact-form .input-group textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .contact-form .field-error {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .button-container-fireai {
+  text-align: center;
+  margin-top: 30px;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .button-container-fireai .btn-booking-send {
+  background: linear-gradient(135deg, #ff4b00 0%, #ff6b35 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 18px 50px;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(255, 75, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .button-container-fireai .btn-booking-send::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .button-container-fireai .btn-booking-send:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(255, 75, 0, 0.4);
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .button-container-fireai .btn-booking-send:hover::before {
+  width: 300px;
+  height: 300px;
+}
+.section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .button-container-fireai .btn-booking-send:active {
+  transform: translateY(-1px);
+}
+.section-fireai-cta .cta-form-wrapper .form-privacy-note {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #1f2937;
+  opacity: 0.85;
+}
+
+/* ====== ANIMATIONS ====== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes titlePulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 75, 0, 0.5), 2px 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.5), 0 0 60px rgba(255, 75, 0, 0.8), 0 0 80px rgba(255, 75, 0, 0.4), 2px 2px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+@keyframes flashSweep {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+/* ====== RESPONSIVE DESIGN ====== */
+@media (max-width: 991px) {
+  .section-fireai-hero {
+    padding: 60px 0 80px;
+  }
+  .section-fireai-hero .fireai-hero-title {
+    font-size: 36px;
+  }
+  .section-fireai-hero .fireai-hero-stat .stat-text {
+    font-size: 20px;
+  }
+  .section-fireai-hero .fireai-certification {
+    padding: 35px 20px;
+    margin-bottom: 40px;
+  }
+  .section-fireai-hero .fireai-certification .cert-title {
+    font-size: 26px;
+  }
+  .section-fireai-hero .fireai-certification .cert-subtitle {
+    font-size: 15px;
+    margin-bottom: 30px;
+  }
+  .section-fireai-hero .fireai-certification .cert-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .section-fireai-hero .fireai-certification .cert-list .cert-item {
+    padding: 24px 20px;
+  }
+  .section-fireai-hero .fireai-hero-image-section {
+    padding: 30px 0;
+  }
+  .section-fireai-hero .fireai-hero-image-section .fireai-hero-image-wrapper {
+    padding: 15px;
+  }
+  .section-fireai-hero .fireai-features-grid {
+    grid-template-columns: 1fr;
+  }
+  .section-fireai-problem {
+    padding: 60px 0;
+  }
+  .section-fireai-problem .problem-solution-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .section-fireai-faq {
+    padding: 60px 0;
+  }
+  .section-fireai-faq .faq-accordion .faq-item .faq-question h3 {
+    font-size: 18px;
+  }
+  .section-fireai-cta {
+    padding: 60px 0;
+  }
+  .section-fireai-cta .cta-header .cta-title-wrapper {
+    padding: 15px 30px;
+  }
+  .section-fireai-cta .cta-header .cta-title-wrapper .cta-title {
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+  .section-fireai-cta .cta-offer {
+    padding: 30px 20px;
+  }
+  .section-fireai-cta .cta-form-wrapper {
+    padding: 30px 20px;
+  }
+}
+@media (max-width: 767px) {
+  .section-fireai-hero {
+    padding: 40px 0 60px;
+  }
+  .section-fireai-hero .fireai-hero-title {
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  .section-fireai-hero .fireai-hero-stat .stat-text {
+    font-size: 18px;
+  }
+  .section-fireai-hero .fireai-hero-stat .stat-subtext {
+    font-size: 16px;
+  }
+  .section-fireai-hero .fireai-hero-product .product-title {
+    font-size: 24px;
+  }
+  .section-fireai-hero .fireai-hero-product .product-tagline {
+    font-size: 16px;
+  }
+  .section-fireai-hero .fireai-trust-badges {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px 15px;
+  }
+  .section-fireai-hero .fireai-trust-badges .trust-badge-item {
+    justify-content: center;
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+  .section-fireai-hero .fireai-certification {
+    padding: 25px 15px;
+    margin-bottom: 30px;
+    border-radius: 16px;
+  }
+  .section-fireai-hero .fireai-certification .cert-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+  .section-fireai-hero .fireai-certification .cert-subtitle {
+    font-size: 14px;
+    margin-bottom: 25px;
+  }
+  .section-fireai-hero .fireai-certification .cert-list {
+    gap: 16px;
+  }
+  .section-fireai-hero .fireai-certification .cert-list .cert-item {
+    padding: 20px 16px;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  .section-fireai-hero .fireai-certification .cert-list .cert-item .cert-icon {
+    font-size: 36px;
+  }
+  .section-fireai-hero .fireai-certification .cert-list .cert-item .cert-content h4 {
+    font-size: 17px;
+  }
+  .section-fireai-hero .fireai-certification .cert-list .cert-item .cert-content p {
+    font-size: 14px;
+  }
+  .section-fireai-hero .fireai-hero-image-section {
+    padding: 20px 0;
+  }
+  .section-fireai-hero .fireai-hero-image-section .container {
+    padding: 0 10px;
+  }
+  .section-fireai-hero .fireai-hero-image-section .fireai-hero-image-wrapper {
+    margin: 15px 0;
+    padding: 10px;
+  }
+  .section-fireai-hero .fireai-hero-image-section .fireai-hero-image {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  .section-fireai-hero .fireai-features-grid {
+    gap: 20px;
+  }
+  .section-fireai-hero .fireai-features-grid .feature-item {
+    padding: 20px;
+  }
+  .section-fireai-problem {
+    padding: 40px 0;
+  }
+  .section-fireai-problem .problem-section-header .section-title {
+    font-size: 32px;
+  }
+  .section-fireai-problem .problem-solution-grid .problem-column .column-title,
+  .section-fireai-problem .problem-solution-grid .solution-column .column-title {
+    font-size: 20px;
+  }
+  .section-fireai-problem .problem-solution-grid .problem-item,
+  .section-fireai-problem .problem-solution-grid .solution-item {
+    padding: 20px;
+  }
+  .section-fireai-problem .problem-solution-grid .problem-item .problem-content h4,
+  .section-fireai-problem .problem-solution-grid .problem-item .solution-content h4,
+  .section-fireai-problem .problem-solution-grid .solution-item .problem-content h4,
+  .section-fireai-problem .problem-solution-grid .solution-item .solution-content h4 {
+    font-size: 18px;
+  }
+  .section-fireai-faq {
+    padding: 40px 0;
+  }
+  .section-fireai-faq .faq-section-header .section-title {
+    font-size: 32px;
+  }
+  .section-fireai-faq .faq-accordion .faq-item .faq-question {
+    padding: 20px;
+  }
+  .section-fireai-faq .faq-accordion .faq-item .faq-question h3 {
+    font-size: 16px;
+  }
+  .section-fireai-faq .faq-accordion .faq-item .faq-question .faq-toggle {
+    font-size: 24px;
+  }
+  .section-fireai-faq .faq-accordion .faq-item .faq-answer .answer-content {
+    padding: 0 20px;
+  }
+  .section-fireai-faq .faq-accordion .faq-item .faq-answer .answer-content p {
+    font-size: 15px;
+  }
+  .section-fireai-cta {
+    padding: 40px 0;
+  }
+  .section-fireai-cta .cta-header .cta-title-wrapper {
+    padding: 12px 20px;
+  }
+  .section-fireai-cta .cta-header .cta-title-wrapper .cta-title {
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  .section-fireai-cta .cta-header .cta-subtitle {
+    font-size: 18px;
+  }
+  .section-fireai-cta .cta-offer {
+    padding: 25px 15px;
+  }
+  .section-fireai-cta .cta-offer .offer-title {
+    font-size: 20px;
+  }
+  .section-fireai-cta .cta-offer .offer-list li {
+    font-size: 16px;
+    padding: 12px;
+  }
+  .section-fireai-cta .cta-form-wrapper {
+    padding: 25px 15px;
+  }
+  .section-fireai-cta .cta-form-wrapper .fireai-booking-wrapper .form-title-custom-fireai h3 {
+    font-size: 22px;
+  }
+  .section-fireai-cta .cta-form-wrapper .contact-form .input-group .form-control {
+    padding: 12px 15px;
+    font-size: 15px;
+  }
+  .section-fireai-cta .cta-form-wrapper .button-container-fireai .btn-booking-send {
+    padding: 15px 40px;
+    font-size: 16px;
+    width: 100%;
+  }
+}
+
+/*# sourceMappingURL=fireai-landing.css.map */
