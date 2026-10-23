@@ -831,7 +831,7 @@ function fireai_crm_page_settings() {
 				<?php wp_nonce_field( 'fireai_crm_tg_bot' ); ?>
 				<button class="button <?php echo $bot_on ? '' : 'button-primary'; ?>"><?php echo $bot_on ? 'Tắt nhập khách qua Telegram' : 'Bật nhập khách qua Telegram'; ?></button>
 			</form>
-			<p class="crm-muted">Mỗi Sale vào <a href="<?php echo esc_url( admin_url( 'profile.php' ) ); ?>">Hồ sơ</a> điền Username Telegram để khách mình nhập qua bot được giao luôn cho mình.</p>
+			<p class="crm-muted">Khách nhập qua bot để trống người phụ trách và được báo vào nhóm Sale; Sale mở khách và tích "Nhận khách này" để chăm sóc. Người trực hotline / Zalo nên có trong nhóm Sale Telegram.</p>
 		<?php endif; ?>
 
 		<h2>Nhận khách từ quảng cáo (Facebook, Google, TikTok...)</h2>

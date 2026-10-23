@@ -107,19 +107,30 @@ Khách do Sale tự nhập (hotline) và khách cũ nhập lại **không** gử
 
 **Báo qua email (tùy chọn):** điền email vào ô **Email nhận thông báo** trong Cài đặt (nhiều email cách nhau bằng dấu phẩy).
 
-## Phần 5: Nhập khách gọi hotline / nhắn Zalo qua Telegram
+## Phần 5: Người trực hotline / Zalo nhập khách qua Telegram
 
-Người cầm máy hotline hoặc Zalo **không cần mở CRM**. Nói chuyện xong, chỉ cần gõ 1 dòng vào nhóm Telegram Sale:
+Dành cho **người trực hotline và Zalo**, để không bỏ sót khách gọi điện hoặc nhắn Zalo mà không điền form. Sale không cần dùng phần này: Sale làm việc trên CRM như bình thường.
 
-| Trường hợp | Gõ vào nhóm |
+Nghe máy / chat xong, người trực chỉ cần gõ 1 dòng (không cần mở CRM):
+
+| Trường hợp | Gõ |
 |---|---|
 | Khách gọi hotline | `/kh 0912345678 Anh Nam, hỏi báo cháy nhà xưởng 2000m2` |
 | Khách nhắn Zalo | `/zalo 0912345678 Chị Lan, cần báo giá nhà 3 tầng` |
 | Xem hướng dẫn | `/help` |
 
-Quy tắc: **số điện thoại** → **tên khách** → **dấu phẩy** → **nội dung**. Bot trả lời ngay "✅ Đã lưu khách" kèm nút mở CRM, và **cảnh báo nếu số đã có trong CRM**.
+Quy tắc: **số điện thoại** → **tên khách** → **dấu phẩy** → **nội dung**.
 
-Nhắn riêng cho bot (không phải trong nhóm) thì không cần gõ `/kh`, chỉ cần `0912345678 Anh Nam, nội dung` (thêm chữ `zalo` ở đầu nếu là khách Zalo). Chỉ thành viên nhóm Sale mới dùng được bot.
+Có 2 cách gõ, kết quả như nhau:
+- **Gõ trong nhóm Telegram Sale:** cả nhóm thấy ngay khách mới.
+- **Nhắn riêng cho bot** (gọn hơn, không làm ồn nhóm): không cần gõ `/kh`, chỉ cần `0912345678 Anh Nam, nội dung` (thêm chữ `zalo` ở đầu nếu là khách Zalo). Bot xác nhận riêng cho người trực và **tự báo khách mới vào nhóm Sale**.
+
+Người trực phải là **thành viên nhóm Sale Telegram** thì bot mới nhận.
+
+**Sau khi nhập:** khách vào CRM ở trạng thái **Mới**, **chưa giao cho ai**, kèm dòng "Nhập bởi: <tên người trực>". Sale thấy thông báo trong nhóm → mở khách → tích **Nhận khách này** → **Cập nhật** để chăm sóc (hoặc admin giao cho Sale).
+Bot cũng **cảnh báo nếu số điện thoại đã có trong CRM**, tránh 2 người chăm 1 khách.
+
+> Nếu bạn đã bật "Sale chỉ thấy khách được giao cho mình", Sale sẽ không thấy khách chưa giao: khi đó admin cần giao khách (lọc **Chưa giao** ở trang Khách hàng).
 
 ### Bật (admin làm 1 lần)
 1. Đã làm xong Phần 4 (bot đã gửi tin nhắn thử thành công).
@@ -128,9 +139,8 @@ Nhắn riêng cho bot (không phải trong nhóm) thì không cần gõ `/kh`, c
 
 > Nếu hiện cảnh báo đỏ lỗi 401/403: plugin All-In-One Security đang chặn. Vào **WP Security → Tường lửa (Firewall)** → tắt tùy chọn chặn REST API cho khách chưa đăng nhập, rồi bấm Tắt → Bật lại.
 
-### Khách tự giao cho đúng Sale
-Mỗi Sale đăng nhập CRM → **Hồ sơ** (menu trái) → ô **Username Telegram** → điền username Telegram của mình (Telegram → Cài đặt → Username) → **Cập nhật hồ sơ**.
-Từ đó khách Sale nào nhập qua bot sẽ tự giao cho Sale đó.
+### Ghi tên người nhập (tùy chọn)
+Nếu người trực có tài khoản CRM: đăng nhập → **Hồ sơ** → điền **Username Telegram** → **Cập nhật hồ sơ**. CRM sẽ ghi đúng tài khoản đó là người nhập khách. Không có tài khoản CRM thì vẫn dùng bot bình thường (CRM ghi theo tên Telegram).
 
 ## Phần 6: Khách bấm nút Gọi / Chat Zalo trên website
 

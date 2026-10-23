@@ -28,7 +28,11 @@ function fireai_crm_notify_new_lead( $id, $row, $data = array() ) {
 	}
 }
 
-function fireai_crm_telegram_message( $lead ) {
+/**
+ * @param object $lead
+ * @param array  $extra Dòng bổ sung (đã escape HTML) chèn trước link mở CRM.
+ */
+function fireai_crm_telegram_message( $lead, array $extra = array() ) {
 	$esc   = function ( $text ) {
 		return htmlspecialchars( (string) $text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
 	};
@@ -52,6 +56,7 @@ function fireai_crm_telegram_message( $lead ) {
 		}
 		$lines[] = '📝 ' . $esc( $message );
 	}
+	$lines   = array_merge( $lines, $extra );
 	$lines[] = '';
 	$lines[] = '<a href="' . $esc( admin_url( 'admin.php?page=fireai-crm&lead=' . (int) $lead->id ) ) . '">Mở trong CRM</a>';
 	return implode( "\n", $lines );

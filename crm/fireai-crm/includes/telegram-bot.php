@@ -152,7 +152,8 @@ function fireai_crm_telegram_handle_message( array $message ) {
 			'message'     => $lead['message'],
 			'source'      => $lead['source'],
 			'campaign'    => $click ? $click['label'] : '',
-			'assigned_to' => $wp_user,
+			// Để trống người phụ trách: Sale sẽ nhận chăm sóc. Chỉ ghi lại ai đã nhập.
+			'assigned_to' => 0,
 			'created_by'  => $wp_user,
 			'silent'      => true,
 			'raw'         => array(
@@ -176,24 +177,19 @@ function fireai_crm_telegram_handle_message( array $message ) {
 		return htmlspecialchars( (string) $t, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8' );
 	};
 	$saved = fireai_crm_get_lead( $id );
-	$lines = array(
-		'✅ <b>Đã lưu khách</b> (' . $esc( fireai_crm_label( fireai_crm_sources(), $saved->source ) ) . ')',
-		'👤 ' . $esc( '' !== $saved->name ? $saved->name : '(Chưa có tên)' ),
-		'📞 ' . $esc( $saved->phone ),
-	);
-	if ( $saved->campaign ) {
-		$lines[] = '📣 ' . $esc( $saved->campaign );
-	}
-	if ( $wp_user ) {
-		$lines[] = '🙋 Phụ trách: ' . $esc( fireai_crm_user_name( $wp_user ) );
-	}
+	$extra = array( '✍️ Nhập bởi: ' . $esc( $tg_name ) );
 	if ( $dupes ) {
-		$lines[] = '';
-		$lines[] = '⚠️ <b>Số này đã có ' . count( $dupes ) . ' lần trong CRM</b>, gần nhất: ' . $esc( ( $dupes[0]->name ? $dupes[0]->name : '(Chưa có tên)' ) . ' – ' . mysql2date( 'd/m/Y', $dupes[0]->created_at ) . ' – ' . fireai_crm_label( fireai_crm_statuses(), $dupes[0]->status ) );
+		$extra[] = '⚠️ <b>Số này đã có ' . count( $dupes ) . ' lần trong CRM</b>, gần nhất: ' . $esc( ( $dupes[0]->name ? $dupes[0]->name : '(Chưa có tên)' ) . ' – ' . mysql2date( 'd/m/Y', $dupes[0]->created_at ) . ' – ' . fireai_crm_label( fireai_crm_statuses(), $dupes[0]->status ) );
 	}
-	$lines[] = '';
-	$lines[] = '<a href="' . $esc( admin_url( 'admin.php?page=fireai-crm&lead=' . $id ) ) . '">Mở trong CRM</a>';
-	fireai_crm_telegram_send( implode( "\n", $lines ), $chat_id, $reply );
+	$card = fireai_crm_telegram_message( $saved, $extra );
+
+	if ( $is_dm ) {
+		// Nhắn riêng: xác nhận cho người trực máy, và báo cả nhóm Sale như khách từ form.
+		fireai_crm_telegram_send( '✅ Đã lưu khách <b>' . $esc( '' !== $saved->name ? $saved->name : $saved->phone ) . '</b> vào CRM và báo nhóm Sale.', $chat_id, $reply );
+		fireai_crm_telegram_send( $card );
+	} else {
+		fireai_crm_telegram_send( '✅ Đã lưu vào CRM' . "\n\n" . $card, $chat_id, $reply );
+	}
 }
 
 function fireai_crm_telegram_help() {
@@ -270,8 +266,8 @@ function fireai_crm_telegram_is_team_member( $user_id ) {
 }
 
 /*
- * Liên kết tài khoản Telegram với tài khoản WordPress (trang Hồ sơ) để khách
- * nhập qua bot được giao luôn cho đúng người.
+ * Liên kết tài khoản Telegram với tài khoản WordPress (trang Hồ sơ) để CRM
+ * ghi đúng người đã nhập khách qua bot.
  */
 add_action( 'show_user_profile', 'fireai_crm_telegram_profile_field' );
 add_action( 'edit_user_profile', 'fireai_crm_telegram_profile_field' );
@@ -289,7 +285,7 @@ function fireai_crm_telegram_profile_field( $user ) {
 			<th><label for="fireai-crm-telegram">Username Telegram</label></th>
 			<td>
 				<input type="text" id="fireai-crm-telegram" name="fireai_crm_telegram" class="regular-text" value="<?php echo esc_attr( get_user_meta( $user->ID, 'fireai_crm_telegram', true ) ); ?>" placeholder="vd: trung_fireai">
-				<p class="description">Telegram → Cài đặt → Username (không cần dấu @). Khách bạn nhập qua bot sẽ tự giao cho bạn.</p>
+				<p class="description">Dành cho người trực hotline / Zalo nhập khách qua bot Telegram. Telegram → Cài đặt → Username (không cần dấu @). CRM sẽ ghi bạn là người nhập khách.</p>
 			</td>
 		</tr>
 	</table>
