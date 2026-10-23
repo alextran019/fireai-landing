@@ -107,7 +107,42 @@ Khách do Sale tự nhập (hotline) và khách cũ nhập lại **không** gử
 
 **Báo qua email (tùy chọn):** điền email vào ô **Email nhận thông báo** trong Cài đặt (nhiều email cách nhau bằng dấu phẩy).
 
-## Phần 5: Nhận khách từ quảng cáo (Facebook / Google / TikTok)
+## Phần 5: Nhập khách gọi hotline / nhắn Zalo qua Telegram
+
+Người cầm máy hotline hoặc Zalo **không cần mở CRM**. Nói chuyện xong, chỉ cần gõ 1 dòng vào nhóm Telegram Sale:
+
+| Trường hợp | Gõ vào nhóm |
+|---|---|
+| Khách gọi hotline | `/kh 0912345678 Anh Nam, hỏi báo cháy nhà xưởng 2000m2` |
+| Khách nhắn Zalo | `/zalo 0912345678 Chị Lan, cần báo giá nhà 3 tầng` |
+| Xem hướng dẫn | `/help` |
+
+Quy tắc: **số điện thoại** → **tên khách** → **dấu phẩy** → **nội dung**. Bot trả lời ngay "✅ Đã lưu khách" kèm nút mở CRM, và **cảnh báo nếu số đã có trong CRM**.
+
+Nhắn riêng cho bot (không phải trong nhóm) thì không cần gõ `/kh`, chỉ cần `0912345678 Anh Nam, nội dung` (thêm chữ `zalo` ở đầu nếu là khách Zalo). Chỉ thành viên nhóm Sale mới dùng được bot.
+
+### Bật (admin làm 1 lần)
+1. Đã làm xong Phần 4 (bot đã gửi tin nhắn thử thành công).
+2. **CRM → Cài đặt** → mục **Nhập khách qua Telegram** → bấm **Bật nhập khách qua Telegram**.
+3. Thấy nhãn xanh **"Đang hoạt động"** là xong. Thử gõ `/help` trong nhóm.
+
+> Nếu hiện cảnh báo đỏ lỗi 401/403: plugin All-In-One Security đang chặn. Vào **WP Security → Tường lửa (Firewall)** → tắt tùy chọn chặn REST API cho khách chưa đăng nhập, rồi bấm Tắt → Bật lại.
+
+### Khách tự giao cho đúng Sale
+Mỗi Sale đăng nhập CRM → **Hồ sơ** (menu trái) → ô **Username Telegram** → điền username Telegram của mình (Telegram → Cài đặt → Username) → **Cập nhật hồ sơ**.
+Từ đó khách Sale nào nhập qua bot sẽ tự giao cho Sale đó.
+
+## Phần 6: Khách bấm nút Gọi / Chat Zalo trên website
+
+Khi khách bấm **Gọi ngay** hoặc **Chat Zalo**, website không biết được số điện thoại của khách (điện thoại và Zalo không cho phép), nhưng biết khách **đến từ quảng cáo nào**. CRM sẽ:
+
+1. **Báo vào nhóm Telegram** ngay lúc khách bấm: "📞 Có khách vừa bấm GỌI HOTLINE – Nguồn: Facebook · npp-mien-nam · M1A".
+2. **Tự gắn chiến dịch**: nếu trong 30 phút sau, người cầm máy gõ `/kh` (hoặc `/zalo`), khách đó được ghi luôn chiến dịch quảng cáo của lượt bấm.
+3. **Đếm lượt bấm** mỗi ngày, hiện ở đầu trang **CRM → Khách hàng**.
+
+Tính năng bật sẵn. Muốn tắt báo Telegram cho lượt bấm: **CRM → Cài đặt** → bỏ tích **"Báo vào nhóm Telegram mỗi khi có khách bấm"**.
+
+## Phần 7: Nhận khách từ quảng cáo (Facebook / Google / TikTok)
 
 Khách điền form trên website từ link quảng cáo được tự nhận nguồn nhờ mã `utm_source`, `fbclid`, `gclid` trên đường dẫn.
 

@@ -77,6 +77,7 @@ function fireai_crm_install_tables() {
 	$charset = $wpdb->get_charset_collate();
 	$leads   = fireai_crm_table( 'leads' );
 	$notes   = fireai_crm_table( 'notes' );
+	$clicks  = fireai_crm_table( 'clicks' );
 
 	dbDelta(
 		"CREATE TABLE {$leads} (
@@ -113,6 +114,21 @@ function fireai_crm_install_tables() {
 			created_at datetime NOT NULL,
 			PRIMARY KEY  (id),
 			KEY lead_id (lead_id)
+		) {$charset};"
+	);
+
+	dbDelta(
+		"CREATE TABLE {$clicks} (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			type varchar(16) NOT NULL DEFAULT '',
+			source varchar(32) NOT NULL DEFAULT '',
+			campaign varchar(191) NOT NULL DEFAULT '',
+			page varchar(500) NOT NULL DEFAULT '',
+			ip_hash varchar(64) NOT NULL DEFAULT '',
+			lead_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			created_at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			KEY type_created (type, created_at)
 		) {$charset};"
 	);
 

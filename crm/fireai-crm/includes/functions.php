@@ -56,6 +56,8 @@ function fireai_crm_settings() {
 			'tg_token'      => '',
 			'tg_chat_id'    => '',
 			'notify_emails' => '',
+			'click_track'   => 1,
+			'click_notify'  => 1,
 		)
 	);
 }
@@ -92,6 +94,14 @@ function fireai_crm_can_access_lead( $lead ) {
 	}
 	$me = get_current_user_id();
 	return (int) $lead->assigned_to === $me || (int) $lead->created_by === $me;
+}
+
+function fireai_crm_user_name( $id ) {
+	if ( ! $id ) {
+		return '—';
+	}
+	$user = get_userdata( $id );
+	return $user ? $user->display_name : '#' . $id;
 }
 
 function fireai_crm_get_lead( $id ) {

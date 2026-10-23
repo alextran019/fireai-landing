@@ -58,27 +58,47 @@ function fireai_crm_telegram_message( $lead ) {
 }
 
 /**
+ * Gọi một hàm của Telegram Bot API.
+ *
+ * @return mixed|WP_Error Trường "result" của Telegram.
+ */
+function fireai_crm_telegram_api( $method, array $params = array() ) {
+	$settings = fireai_crm_settings();
+	if ( ! $settings['tg_token'] ) {
+		return new WP_Error( 'fireai_crm_tg', 'Chưa nhập Bot Token.' );
+	}
+	$response = wp_remote_post(
+		'https://api.telegram.org/bot' . $settings['tg_token'] . '/' . $method,
+		array(
+			'timeout' => 8,
+			'body'    => $params,
+		)
+	);
+	return fireai_crm_telegram_result( $response, true );
+}
+
+/**
  * @return true|WP_Error
  */
-function fireai_crm_telegram_send( $text, $chat_id = null ) {
+function fireai_crm_telegram_send( $text, $chat_id = null, array $extra = array() ) {
 	$settings = fireai_crm_settings();
 	$chat_id  = null === $chat_id ? $settings['tg_chat_id'] : $chat_id;
 	if ( ! $settings['tg_token'] || ! $chat_id ) {
 		return new WP_Error( 'fireai_crm_tg', 'Chưa nhập Bot Token hoặc Chat ID.' );
 	}
-	$response = wp_remote_post(
-		'https://api.telegram.org/bot' . $settings['tg_token'] . '/sendMessage',
-		array(
-			'timeout' => 8,
-			'body'    => array(
+	$result = fireai_crm_telegram_api(
+		'sendMessage',
+		array_merge(
+			array(
 				'chat_id'                  => $chat_id,
 				'text'                     => $text,
 				'parse_mode'               => 'HTML',
 				'disable_web_page_preview' => 'true',
 			),
+			$extra
 		)
 	);
-	return fireai_crm_telegram_result( $response );
+	return is_wp_error( $result ) ? $result : true;
 }
 
 /**
@@ -91,8 +111,11 @@ function fireai_crm_telegram_find_chats() {
 	if ( ! $settings['tg_token'] ) {
 		return new WP_Error( 'fireai_crm_tg', 'Chưa nhập Bot Token.' );
 	}
-	$response = wp_remote_get( 'https://api.telegram.org/bot' . $settings['tg_token'] . '/getUpdates', array( 'timeout' => 8 ) );
-	$result   = fireai_crm_telegram_result( $response, true );
+	// Khi bot đang nhận tin qua webhook, Telegram không cho đọc getUpdates: dùng các nhóm bot đã thấy.
+	if ( get_option( 'fireai_crm_tg_webhook_secret' ) ) {
+		return (array) get_option( 'fireai_crm_tg_seen_chats', array() );
+	}
+	$result = fireai_crm_telegram_api( 'getUpdates' );
 	if ( is_wp_error( $result ) ) {
 		return $result;
 	}
