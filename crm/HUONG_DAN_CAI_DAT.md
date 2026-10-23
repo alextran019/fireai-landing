@@ -111,23 +111,27 @@ Khách do Sale tự nhập (hotline) và khách cũ nhập lại **không** gử
 
 Dành cho **người trực hotline và Zalo**, để không bỏ sót khách gọi điện hoặc nhắn Zalo mà không điền form. Sale không cần dùng phần này: Sale làm việc trên CRM như bình thường.
 
-Nghe máy / chat xong, người trực chỉ cần gõ 1 dòng (không cần mở CRM):
+Nghe máy / chat xong, người trực **nhắn riêng cho bot** (không cần mở CRM). **Chỉ cần có số điện thoại**, viết thế nào cũng được, không cần đúng thứ tự hay dấu câu:
 
-| Trường hợp | Gõ |
+| Người trực gõ | CRM lưu |
 |---|---|
-| Khách gọi hotline | `/kh 0912345678 Anh Nam, hỏi báo cháy nhà xưởng 2000m2` |
-| Khách nhắn Zalo | `/zalo 0912345678 Chị Lan, cần báo giá nhà 3 tầng` |
-| Xem hướng dẫn | `/help` |
+| `0912345678 anh Nam hỏi báo cháy nhà xưởng` | Tên: anh Nam · Nội dung: hỏi báo cháy nhà xưởng |
+| `Chị Lan 0987.111.222 cần báo giá 3 tầng` | Tên: Chị Lan · Nội dung: cần báo giá 3 tầng |
+| `0912 345 678` | Chỉ số điện thoại (bổ sung tên sau trên CRM) |
+| `khách hỏi giá xưởng 2000m2, sđt 0909123456, tên Tuấn` | Tên: Tuấn · Nội dung: khách hỏi giá xưởng 2000m2 |
+| `zalo 0912345678 anh Tú` hoặc `anh Tú (zalo) 0912…` | Nguồn: **Zalo** |
+| `zalo Chị Thu hỏi giá đầu báo khói` | Khách Zalo **không có số** vẫn lưu được |
 
-Quy tắc: **số điện thoại** → **tên khách** → **dấu phẩy** → **nội dung**.
-
-Có 2 cách gõ, kết quả như nhau:
-- **Gõ trong nhóm Telegram Sale:** cả nhóm thấy ngay khách mới.
-- **Nhắn riêng cho bot** (gọn hơn, không làm ồn nhóm): không cần gõ `/kh`, chỉ cần `0912345678 Anh Nam, nội dung` (thêm chữ `zalo` ở đầu nếu là khách Zalo). Bot xác nhận riêng cho người trực và **tự báo khách mới vào nhóm Sale**.
+- Có chữ **zalo** ở bất kỳ đâu → nguồn Zalo; không có → nguồn Hotline.
+- Bot không đoán được tên thì để trống tên và giữ nguyên toàn bộ chữ trong phần nội dung, **không mất thông tin**. Tên có thể bổ sung sau trên CRM.
+- Tin nhắn không có số điện thoại (và không phải khách Zalo) → bot trả lời **"Chưa lưu"** để người trực gửi lại.
+- Bot xác nhận riêng cho người trực và **tự báo khách mới vào nhóm Sale**.
+- Gõ trong **nhóm Sale** cũng được, nhưng phải thêm `/kh` ở đầu (VD `/kh 0912345678 anh Nam hỏi giá`), vì trong nhóm bot chỉ đọc tin bắt đầu bằng `/`.
+- Quên cách dùng: gõ `/help`.
 
 Người trực phải là **thành viên nhóm Sale Telegram** thì bot mới nhận.
 
-**Sau khi nhập:** khách vào CRM ở trạng thái **Mới**, **chưa giao cho ai**, kèm dòng "Nhập bởi: <tên người trực>". Sale thấy thông báo trong nhóm → mở khách → tích **Nhận khách này** → **Cập nhật** để chăm sóc (hoặc admin giao cho Sale).
+**Sau khi nhập:** khách vào CRM ở trạng thái **Mới**, **chưa giao cho ai**, kèm dòng "Nhập bởi: <tên người trực>". Người trực tiếp tục chăm sóc khách như bình thường; giao khách cho ai sẽ do admin chỉ định sau trên CRM (mở khách → **Người phụ trách** → **Cập nhật**).
 Bot cũng **cảnh báo nếu số điện thoại đã có trong CRM**, tránh 2 người chăm 1 khách.
 
 > Nếu bạn đã bật "Sale chỉ thấy khách được giao cho mình", Sale sẽ không thấy khách chưa giao: khi đó admin cần giao khách (lọc **Chưa giao** ở trang Khách hàng).

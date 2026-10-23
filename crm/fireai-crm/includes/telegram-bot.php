@@ -134,8 +134,17 @@ function fireai_crm_telegram_handle_message( array $message ) {
 	}
 
 	$lead = fireai_crm_parse_quick_lead( $text, 'zalo' === $command ? 'zalo' : '' );
-	if ( '' === $lead['phone'] ) {
-		fireai_crm_telegram_send( '⚠️ Chưa thấy số điện thoại. Ví dụ:' . "\n" . '<code>/kh 0912345678 Anh Nam, hỏi báo cháy nhà xưởng</code>', $chat_id, $reply );
+	// Khách Zalo có thể không để lại số: vẫn lưu để không mất khách. Còn lại cần có số điện thoại.
+	if ( '' === $lead['phone'] && ( 'zalo' !== $lead['source'] || ( '' === $lead['name'] && '' === $lead['message'] ) ) ) {
+		fireai_crm_telegram_send(
+			'⚠️ <b>Chưa lưu</b> vì không thấy số điện thoại.' . "\n\n" .
+			'Chỉ cần gửi lại kèm số, viết thế nào cũng được, VD:' . "\n" .
+			'<code>0912345678 anh Nam hỏi báo cháy</code>' . "\n\n" .
+			'Khách Zalo không có số: thêm chữ <b>zalo</b>, VD:' . "\n" .
+			'<code>zalo Chị Lan, hỏi giá đầu báo khói</code>',
+			$chat_id,
+			$reply
+		);
 		return;
 	}
 
@@ -196,53 +205,95 @@ function fireai_crm_telegram_help() {
 	return implode(
 		"\n",
 		array(
-			'<b>Nhập khách vào CRM</b>',
+			'<b>Lưu khách vào CRM</b>',
 			'',
-			'Khách gọi hotline:',
-			'<code>/kh 0912345678 Anh Nam, hỏi báo cháy nhà xưởng</code>',
+			'Nhắn riêng cho bot: chỉ cần có <b>số điện thoại</b>, viết thế nào cũng được:',
+			'<code>0912345678 anh Nam hỏi báo cháy nhà xưởng</code>',
+			'<code>Chị Lan 0987.111.222 cần báo giá 3 tầng</code>',
 			'',
-			'Khách nhắn Zalo:',
-			'<code>/zalo 0912345678 Chị Lan, cần báo giá 3 tầng</code>',
+			'Khách Zalo: thêm chữ <b>zalo</b> ở bất kỳ đâu',
+			'<code>zalo 0912345678 anh Tú</code>',
 			'',
-			'Sau số điện thoại: tên khách, dấu phẩy, rồi nội dung.',
-			'Nhắn riêng cho bot thì không cần gõ /kh.',
+			'Trong nhóm Sale: gõ thêm <b>/kh</b> ở đầu',
+			'<code>/kh 0912345678 anh Nam hỏi giá</code>',
 		)
 	);
 }
 
 /**
- * Tách số điện thoại, tên, nội dung từ một dòng gõ nhanh.
- * "0912 345 678 Anh Nam, hỏi báo cháy" → phone 0912345678, name "Anh Nam", message "hỏi báo cháy".
+ * Tách số điện thoại, tên, nội dung từ tin nhắn gõ tự do. Không bắt buộc thứ tự hay dấu câu:
+ *   "0912 345 678 Anh Nam, hỏi báo cháy"      → tên "Anh Nam", nội dung "hỏi báo cháy"
+ *   "anh Nam 0912345678 hỏi báo cháy xưởng"   → tên "anh Nam", nội dung "hỏi báo cháy xưởng"
+ *   "zalo chị Lan 0987.111.222 cần báo giá"   → nguồn Zalo
+ *   "0912345678"                              → chỉ có số, vẫn lưu
+ * Không đoán được tên thì để trống tên và giữ toàn bộ chữ trong nội dung: không mất thông tin.
  */
 function fireai_crm_parse_quick_lead( $text, $source = '' ) {
-	$text = trim( (string) $text );
+	$text = trim( preg_replace( '/[ \t]+/u', ' ', (string) $text ) );
 	if ( '' === $source ) {
-		$source = 'hotline';
-		if ( preg_match( '/^(#?zalo)\b[\s:,\-]*/iu', $text, $m ) ) {
-			$source = 'zalo';
-			$text   = trim( substr( $text, strlen( $m[0] ) ) );
+		$source = preg_match( '/(^|[^\p{L}])#?zalo($|[^\p{L}])/iu', $text ) ? 'zalo' : 'hotline';
+	}
+	// Bỏ chữ "zalo" (kể cả "(zalo)", "#zalo") khỏi tên / nội dung sau khi đã nhận diện nguồn.
+	$text = trim( preg_replace( '/[(\[]?#?(?<!\p{L})zalo(?!\p{L})[)\]]?[\s:,.\-–]*/iu', ' ', $text ) );
+
+	// Số Việt Nam: 0 / 84 / +84, cho phép cách nhau bằng dấu cách, chấm, gạch.
+	$phone  = '';
+	$before = '';
+	$after  = $text;
+	if ( preg_match( '/(?<![\d])(?:\+?84[\s.\-]?|0)(?:[35789](?:[\s.\-]?\d){8}|2(?:[\s.\-]?\d){9})(?![\d])/u', $text, $m, PREG_OFFSET_CAPTURE ) ) {
+		$phone  = fireai_crm_normalize_phone( $m[0][0] );
+		$before = substr( $text, 0, $m[0][1] );
+		$after  = substr( $text, $m[0][1] + strlen( $m[0][0] ) );
+	}
+	$clean  = function ( $t ) {
+		return trim( preg_replace( '/^[\s,;:.\-–()]+|[\s,;:.\-–()]+$/u', '', $t ) );
+	};
+	$words  = function ( $t ) {
+		return '' === $t ? 0 : count( preg_split( '/\s+/u', $t ) );
+	};
+	// "sđt 0912…", "SĐT: 0912…": bỏ chữ dẫn trước số.
+	$before = $clean( preg_replace( '/(?:sđt|sdt|số điện thoại|so dien thoai|số|đt|dt|phone|tel)\s*:?\s*$/iu', '', $before ) );
+	$after  = $clean( $after );
+
+	$honorific = '(?i:anh|chị|chi|em|cô|co|chú|chu|bác|bac|ông|ong|bà|ba|a|c|mr|ms|mrs|cty|công ty|cong ty)';
+	// Trông giống tên người / công ty: không có số, ngắn, bắt đầu bằng xưng hô hoặc chữ hoa.
+	$name_like = function ( $t ) use ( $words, $honorific ) {
+		return '' !== $t && ! preg_match( '/\d|\n/u', $t ) && $words( $t ) <= 5
+			&& ( preg_match( '/^' . $honorific . '\.?\s/u', $t ) || preg_match( '/^\p{Lu}/u', $t ) || $words( $t ) <= 2 );
+	};
+
+	$name    = '';
+	$message = $after;
+	if ( $name_like( $before ) ) {
+		// "Anh Nam 0912345678 nội dung": chữ trước số là tên.
+		$name = $before;
+	} else {
+		$prefix = $before;
+		$parts  = preg_split( '/\s*(?:[,;\n]| - | – )\s*/u', $after, 2 );
+		if ( count( $parts ) === 2 && $name_like( $parts[0] ) ) {
+			// "0912345678 Anh Nam, nội dung"
+			$name    = $parts[0];
+			$message = $parts[1];
+		} elseif ( preg_match( '/^(' . $honorific . '\.?\s+(?:\p{Lu}[\p{L}]*\s*){1,4})(.*)$/su', $after, $hm ) ) {
+			// "0912345678 anh Nam hỏi giá": xưng hô + các chữ viết hoa là tên.
+			$name    = trim( $hm[1] );
+			$message = trim( $hm[2] );
+		}
+		if ( '' !== $prefix ) {
+			$message = trim( $prefix . "\n" . $message );
 		}
 	}
 
-	$phone = '';
-	if ( preg_match( '/(?:\+?84|0)(?:[\s.\-]?\d){8,10}/u', $text, $m ) ) {
-		$phone = fireai_crm_normalize_phone( $m[0] );
-		$text  = trim( str_replace( $m[0], ' ', $text ) );
-	}
-	$text = trim( preg_replace( '/^[\s,;:\-–]+/u', '', $text ) );
-
-	$name    = '';
-	$message = $text;
-	$parts   = preg_split( '/\s*(?:,|\n| - | – )\s*/u', $text, 2 );
-	if ( count( $parts ) === 2 || ( '' !== $parts[0] && strlen( $parts[0] ) <= 60 ) ) {
-		$name    = $parts[0];
-		$message = isset( $parts[1] ) ? $parts[1] : '';
+	// "…, tên Tuấn" / "tên: Nguyễn Văn An" ở bất kỳ đâu.
+	if ( '' === $name && preg_match( '/(?<!\p{L})(?i:tên)\s*:?\s+((?:\p{Lu}[\p{L}]*\s*){1,4})/u', $message, $tm ) ) {
+		$name    = trim( $tm[1] );
+		$message = trim( str_replace( $tm[0], ' ', $message ) );
 	}
 
 	return array(
 		'phone'   => $phone,
-		'name'    => $name,
-		'message' => $message,
+		'name'    => $clean( $name ),
+		'message' => $clean( $message ),
 		'source'  => $source,
 	);
 }
