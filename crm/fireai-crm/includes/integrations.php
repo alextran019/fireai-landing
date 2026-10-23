@@ -22,27 +22,40 @@ function fireai_crm_from_cf7( $contact_form ) {
 		return;
 	}
 
-	$posted   = (array) $submission->get_posted_data();
-	$url      = (string) $submission->get_meta( 'url' );
-	$detected = fireai_crm_detect_source( $url );
-	$mapped   = fireai_crm_map_fields( $posted );
-	$title    = is_object( $contact_form ) && method_exists( $contact_form, 'title' ) ? $contact_form->title() : '';
+	$posted = (array) $submission->get_posted_data();
+	$url    = (string) $submission->get_meta( 'url' );
+	$title  = is_object( $contact_form ) && method_exists( $contact_form, 'title' ) ? $contact_form->title() : '';
 
 	fireai_crm_insert_lead(
-		array_merge(
-			$mapped,
+		fireai_crm_lead_from_form(
+			$posted,
+			$title,
 			array(
-				'source'     => $detected['source'],
-				'campaign'   => $detected['campaign'],
-				'created_by' => 0,
-				'raw'        => array(
+				'raw' => array(
 					'form'   => $title,
 					'url'    => $url,
 					'fields' => $posted,
 				),
-			)
+			),
+			$url
 		)
 	);
+}
+
+/**
+ * Dựng dữ liệu khách từ một lần gửi form website.
+ * Nguồn lấy từ các trường utm_* trong form, nếu không có thì từ URL trang, cuối cùng là "Website".
+ * Chiến dịch lấy từ utm_campaign / utm_content, nếu không có thì là tên form.
+ */
+function fireai_crm_lead_from_form( array $fields, $form_title, array $extra = array(), $url = '' ) {
+	$mapped  = fireai_crm_map_fields( $fields );
+	$fromurl = fireai_crm_detect_source( $url );
+
+	$mapped['source']     = $mapped['source'] ? $mapped['source'] : ( $fromurl['source'] ? $fromurl['source'] : 'website' );
+	$mapped['campaign']   = $mapped['campaign'] ? $mapped['campaign'] : ( $fromurl['campaign'] ? $fromurl['campaign'] : $form_title );
+	$mapped['created_by'] = 0;
+
+	return array_merge( $mapped, $extra );
 }
 
 /*
@@ -107,13 +120,11 @@ function fireai_crm_webhook( WP_REST_Request $request ) {
 	$rest   = array_diff_key( $params, array_flip( array_merge( ...array_values( $keys ) ) ) );
 	$mapped = fireai_crm_map_fields( $rest );
 
-	$source = strtolower( $pick( $keys['source'] ) );
-	if ( preg_match( '/^(fb|facebook|ig|instagram)/', $source ) ) {
-		$source = 'facebook';
-	} elseif ( false !== strpos( $source, 'google' ) ) {
-		$source = 'google';
-	} elseif ( false !== strpos( $source, 'tiktok' ) ) {
-		$source = 'tiktok';
+	// "source" có thể là facebook / fb / google... hoặc tên nguồn trong danh sách CRM.
+	$source  = strtolower( $pick( array( 'source', 'nguon' ) ) );
+	$tracked = fireai_crm_source_from_params( array_merge( $params, array( 'utm_source' => $source ? $source : $pick( array( 'utm_source' ) ) ) ) );
+	if ( ! isset( fireai_crm_sources()[ $source ] ) ) {
+		$source = $tracked['source'] ? $tracked['source'] : 'other';
 	}
 
 	$id = fireai_crm_insert_lead(
@@ -122,7 +133,7 @@ function fireai_crm_webhook( WP_REST_Request $request ) {
 			'phone'      => $pick( $keys['phone'] ) ?: $mapped['phone'],
 			'email'      => $pick( $keys['email'] ) ?: $mapped['email'],
 			'message'    => trim( $pick( $keys['message'] ) . "\n\n" . $mapped['message'] ),
-			'campaign'   => $pick( $keys['campaign'] ),
+			'campaign'   => $pick( array( 'campaign', 'campaign_name', 'ad_name', 'form_name' ) ) ?: $tracked['campaign'],
 			'source'     => $source,
 			'created_by' => 0,
 			'raw'        => $params,
@@ -169,15 +180,17 @@ function fireai_crm_import_cfdb7() {
 			continue;
 		}
 		$id = fireai_crm_insert_lead(
-			array_merge(
-				fireai_crm_map_fields( $fields ),
+			fireai_crm_lead_from_form(
+				$fields,
+				get_the_title( (int) $row->form_post_id ),
 				array(
-					'source'       => 'website',
-					'campaign'     => get_the_title( (int) $row->form_post_id ),
 					'external_ref' => $ref,
 					'created_at'   => $row->form_date,
-					'created_by'   => 0,
-					'raw'          => array( 'fields' => $fields ),
+					'silent'       => true,
+					'raw'          => array(
+						'form'   => get_the_title( (int) $row->form_post_id ),
+						'fields' => $fields,
+					),
 				)
 			)
 		);

@@ -53,6 +53,9 @@ function fireai_crm_settings() {
 			'webhook_key'   => '',
 			'cf7_enabled'   => 1,
 			'sale_own_only' => 0,
+			'tg_token'      => '',
+			'tg_chat_id'    => '',
+			'notify_emails' => '',
 		)
 	);
 }
@@ -134,7 +137,7 @@ function fireai_crm_insert_lead( array $data ) {
 	}
 
 	$id = (int) $wpdb->insert_id;
-	do_action( 'fireai_crm_lead_created', $id, $row );
+	do_action( 'fireai_crm_lead_created', $id, $row, $data );
 	return $id;
 }
 
@@ -176,39 +179,60 @@ function fireai_crm_find_by_phone( $phone, $exclude_id = 0, $limit = 5 ) {
 }
 
 /**
- * Đoán nguồn quảng cáo và chiến dịch từ URL trang (utm_source, fbclid, gclid...).
+ * Đoán nguồn quảng cáo và chiến dịch từ các tham số utm_*, fbclid, gclid...
+ * Trả về source rỗng nếu không có dấu hiệu quảng cáo nào.
+ */
+function fireai_crm_source_from_params( array $params ) {
+	$get = function ( $key ) use ( $params ) {
+		return isset( $params[ $key ] ) && is_scalar( $params[ $key ] ) ? trim( (string) $params[ $key ] ) : '';
+	};
+
+	$utm    = strtolower( $get( 'utm_source' ) );
+	$source = '';
+	if ( '' !== $get( 'gclid' ) || false !== strpos( $utm, 'google' ) ) {
+		$source = 'google';
+	} elseif ( '' !== $get( 'fbclid' ) || preg_match( '/^(fb|facebook|ig|instagram|meta)/', $utm ) ) {
+		$source = 'facebook';
+	} elseif ( '' !== $get( 'ttclid' ) || false !== strpos( $utm, 'tiktok' ) ) {
+		$source = 'tiktok';
+	} elseif ( false !== strpos( $utm, 'zalo' ) ) {
+		$source = 'zalo';
+	} elseif ( '' !== $utm ) {
+		$source = 'other';
+	}
+
+	// Chiến dịch + mẫu quảng cáo (utm_content), VD: "bao-chay-q4 · M1A".
+	$campaign = implode( ' · ', array_filter( array( $get( 'utm_campaign' ), $get( 'utm_content' ) ) ) );
+
+	return array(
+		'source'   => $source,
+		'campaign' => sanitize_text_field( $campaign ),
+	);
+}
+
+/**
+ * Như trên nhưng đọc từ URL trang khách gửi form.
  */
 function fireai_crm_detect_source( $url ) {
-	$result = array(
-		'source'   => 'website',
-		'campaign' => '',
-	);
 	$query = wp_parse_url( (string) $url, PHP_URL_QUERY );
-	if ( ! $query ) {
-		return $result;
+	$params = array();
+	if ( $query ) {
+		parse_str( $query, $params );
 	}
-	parse_str( $query, $params );
+	return fireai_crm_source_from_params( $params );
+}
 
-	$utm = strtolower( isset( $params['utm_source'] ) ? (string) $params['utm_source'] : '' );
-	if ( isset( $params['gclid'] ) || false !== strpos( $utm, 'google' ) ) {
-		$result['source'] = 'google';
-	} elseif ( isset( $params['fbclid'] ) || preg_match( '/^(fb|facebook|ig|instagram)/', $utm ) ) {
-		$result['source'] = 'facebook';
-	} elseif ( isset( $params['ttclid'] ) || false !== strpos( $utm, 'tiktok' ) ) {
-		$result['source'] = 'tiktok';
-	} elseif ( false !== strpos( $utm, 'zalo' ) ) {
-		$result['source'] = 'zalo';
-	}
-
-	if ( ! empty( $params['utm_campaign'] ) ) {
-		$result['campaign'] = sanitize_text_field( (string) $params['utm_campaign'] );
-	}
-	return $result;
+/**
+ * Trường form chỉ dùng để theo dõi quảng cáo: không đưa vào nội dung.
+ */
+function fireai_crm_is_tracking_key( $key ) {
+	return (bool) preg_match( '/^(utm_[a-z]+|fbclid|gclid|ttclid|fbc|fbp|gbraid|wbraid)$/', strtolower( (string) $key ) );
 }
 
 /**
  * Nhận diện tên, SĐT, email, nội dung từ các trường form có tên bất kỳ.
  * Các trường còn lại được ghép vào nội dung để Sale không bỏ sót thông tin.
+ * Kèm theo source/campaign (rỗng nếu form không có utm_*).
  */
 function fireai_crm_map_fields( array $fields ) {
 	$out   = array(
@@ -219,9 +243,13 @@ function fireai_crm_map_fields( array $fields ) {
 	);
 	$extra = array();
 
+	$tracking        = fireai_crm_source_from_params( $fields );
+	$out['source']   = $tracking['source'];
+	$out['campaign'] = $tracking['campaign'];
+
 	foreach ( $fields as $key => $value ) {
 		$key = (string) $key;
-		if ( '' === $key || '_' === $key[0] || 0 === strpos( $key, 'cfdb7' ) || false !== strpos( $key, 'cfdb7_file' ) ) {
+		if ( '' === $key || '_' === $key[0] || 0 === strpos( $key, 'cfdb7' ) || false !== strpos( $key, 'cfdb7_file' ) || fireai_crm_is_tracking_key( $key ) ) {
 			continue;
 		}
 		if ( is_array( $value ) ) {

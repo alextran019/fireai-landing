@@ -75,7 +75,39 @@ Nhãn đỏ **Trùng SĐT** nghĩa là số đó đã liên hệ nhiều lần. 
 - **Sale chỉ thấy khách của mình:** CRM → Cài đặt → tích ô tương ứng.
 - **Xóa khách:** mở khách → link **Xóa khách hàng** ở cuối trang.
 
-## Phần 4: Nhận khách từ quảng cáo (Facebook / Google / TikTok)
+## Phần 4: Báo khách mới về điện thoại (Telegram)
+
+Mỗi khi có khách gửi form website hoặc từ quảng cáo, nhóm Telegram của đội Sale nhận ngay một tin nhắn: tên, số điện thoại, nguồn, chiến dịch, nội dung và nút mở thẳng hồ sơ khách. Miễn phí, không giới hạn số tin.
+
+Khách do Sale tự nhập (hotline) và khách cũ nhập lại **không** gửi thông báo.
+
+### Bước 1: Tạo bot (chỉ admin làm, 1 lần)
+1. Cài **Telegram** trên điện thoại và đăng nhập.
+2. Ô tìm kiếm → gõ **`@BotFather`** → chọn tài khoản có dấu tick xanh → bấm **Start**.
+3. Gõ **`/newbot`** rồi gửi.
+4. BotFather hỏi tên: gõ **`FireAI CRM`**.
+5. BotFather hỏi username: gõ một tên **kết thúc bằng `bot`**, VD **`fireai_crm_bot`** (nếu báo trùng thì thêm số: `fireai_crm2026_bot`).
+6. BotFather trả về một dòng dạng `123456789:AAH...` → đây là **Bot Token**. Bấm giữ để sao chép. **Không gửi token này cho người ngoài.**
+
+### Bước 2: Tạo nhóm cho đội Sale
+1. Telegram → biểu tượng bút chì → **Nhóm mới** (New Group).
+2. Thêm các nhân viên Sale **và bot vừa tạo** (tìm theo username, VD `fireai_crm_bot`).
+3. Đặt tên nhóm, VD **"FireAI – Khách mới"** → Tạo.
+4. Trong nhóm, gửi tin nhắn **`/start`**.
+
+### Bước 3: Kết nối với CRM
+1. WordPress → **CRM → Cài đặt**.
+2. Dán Bot Token vào ô **Telegram Bot Token** → bấm **Lưu cài đặt**.
+3. Bấm nút **Tìm Chat ID** (hiện ra sau khi lưu token). Thông báo "Đã kết nối với "FireAI – Khách mới"" là được.
+4. Bấm **Gửi tin nhắn thử** → nhóm Telegram nhận tin "✅ Kết nối thành công!".
+
+### Bước 4: Trên điện thoại của mỗi Sale
+- Vào nhóm → bấm tên nhóm → đảm bảo **Thông báo đang bật** (không tắt tiếng).
+- Lần đầu bấm **"Mở trong CRM"** sẽ phải đăng nhập tài khoản Sale trên trình duyệt điện thoại; các lần sau vào thẳng.
+
+**Báo qua email (tùy chọn):** điền email vào ô **Email nhận thông báo** trong Cài đặt (nhiều email cách nhau bằng dấu phẩy).
+
+## Phần 5: Nhận khách từ quảng cáo (Facebook / Google / TikTok)
 
 Khách điền form trên website từ link quảng cáo được tự nhận nguồn nhờ mã `utm_source`, `fbclid`, `gclid` trên đường dẫn.
 
@@ -87,6 +119,19 @@ Khách điền **form ngay trên Facebook / Google (Lead Ads)** cần một dị
 > Nếu Zapier báo lỗi 401/403: vào **WP Security (All-In-One Security) → Tường lửa**, kiểm tra tùy chọn chặn REST API và cho phép `fireai-crm`.
 
 ---
+
+## Cập nhật plugin lên bản mới
+
+Dữ liệu khách hàng, ghi chú và cài đặt **được giữ nguyên** khi cập nhật.
+
+1. Tải file `fireai-crm.zip` bản mới về máy. **Không bấm đúp / giải nén** (nếu lỡ giải nén: chuột phải vào thư mục `fireai-crm` → Send to → Compressed (zipped) folder).
+2. WordPress → **Plugin** → dòng **FireAI CRM** → bấm **Vô hiệu hóa**.
+3. DirectAdmin → **File Manager** → `domains/fireai.com.vn/public_html/wp-content/plugins`.
+4. Chuột phải vào **thư mục `fireai-crm`** (bản cũ) → **Delete**.
+5. **NEW → Upload files** → chọn `fireai-crm.zip` mới → chờ 100% → đóng cửa sổ → bấm làm mới ↻.
+6. Chuột phải `fireai-crm.zip` → **Extract** → giữ nguyên đường dẫn `/plugins`.
+7. Chuột phải `fireai-crm.zip` → **Delete** (chỉ xóa file .zip).
+8. WordPress → **Plugin** → **FireAI CRM** → **Kích hoạt**.
 
 ## Gỡ cài đặt
 Vô hiệu hóa plugin **không xóa dữ liệu**. Dữ liệu khách hàng vẫn còn nguyên trong database và hiện lại khi kích hoạt lại.

@@ -20,6 +20,10 @@ add_action( 'admin_post_fireai_crm_delete', 'fireai_crm_handle_delete' );
 add_action( 'admin_post_fireai_crm_export', 'fireai_crm_handle_export' );
 add_action( 'admin_post_fireai_crm_settings', 'fireai_crm_handle_settings' );
 add_action( 'admin_post_fireai_crm_import', 'fireai_crm_handle_import' );
+add_action( 'admin_post_fireai_crm_tg_find', 'fireai_crm_handle_tg_find' );
+add_action( 'admin_post_fireai_crm_tg_test', 'fireai_crm_handle_tg_test' );
+add_action( 'in_admin_header', 'fireai_crm_hide_other_notices', 1000 );
+add_filter( 'admin_body_class', 'fireai_crm_body_class' );
 add_action( 'wp_ajax_fireai_crm_check_phone', 'fireai_crm_ajax_check_phone' );
 
 function fireai_crm_admin_menu() {
@@ -54,6 +58,35 @@ function fireai_crm_redirect_sale_dashboard() {
 		wp_safe_redirect( admin_url( 'admin.php?page=fireai-crm' ) );
 		exit;
 	}
+}
+
+function fireai_crm_is_crm_screen() {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	return $screen && false !== strpos( (string) $screen->id, 'fireai-crm' );
+}
+
+function fireai_crm_is_sale_only() {
+	return current_user_can( FIREAI_CRM_CAP ) && ! current_user_can( 'edit_posts' );
+}
+
+/**
+ * Ẩn thông báo, quảng cáo của plugin khác trên trang CRM (và mọi trang khi Sale đăng nhập).
+ * Thông báo của CRM được in trong nội dung trang nên không bị ảnh hưởng.
+ */
+function fireai_crm_hide_other_notices() {
+	if ( ! fireai_crm_is_crm_screen() && ! fireai_crm_is_sale_only() ) {
+		return;
+	}
+	foreach ( array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' ) as $hook ) {
+		remove_all_actions( $hook );
+	}
+}
+
+function fireai_crm_body_class( $classes ) {
+	if ( fireai_crm_is_crm_screen() || fireai_crm_is_sale_only() ) {
+		$classes .= ' fireai-crm-screen';
+	}
+	return $classes;
 }
 
 /* -------------------------------------------------------------------------
@@ -142,16 +175,21 @@ function fireai_crm_notice() {
 		'deleted'  => 'Đã xóa khách hàng.',
 		'settings' => 'Đã lưu cài đặt.',
 		'status'   => 'Đã đổi trạng thái.',
+		'tg_test'  => 'Đã gửi tin nhắn thử. Kiểm tra nhóm Telegram trên điện thoại.',
 	);
 	$msg = isset( $_GET['crm_msg'] ) ? sanitize_key( wp_unslash( $_GET['crm_msg'] ) ) : ''; // phpcs:ignore
 	if ( isset( $messages[ $msg ] ) ) {
-		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $messages[ $msg ] ) . '</p></div>';
+		echo '<div class="notice crm-notice notice-success is-dismissible"><p>' . esc_html( $messages[ $msg ] ) . '</p></div>';
 	}
 	if ( 'imported' === $msg && isset( $_GET['count'] ) ) { // phpcs:ignore
-		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( sprintf( 'Đã nhập %d khách hàng từ dữ liệu form cũ.', absint( $_GET['count'] ) ) ) . '</p></div>'; // phpcs:ignore
+		echo '<div class="notice crm-notice notice-success is-dismissible"><p>' . esc_html( sprintf( 'Đã nhập %d khách hàng từ dữ liệu form cũ.', absint( $_GET['count'] ) ) ) . '</p></div>'; // phpcs:ignore
+	}
+	if ( 'tg_found' === $msg ) {
+		$chat = isset( $_GET['chat'] ) ? sanitize_text_field( rawurldecode( wp_unslash( $_GET['chat'] ) ) ) : ''; // phpcs:ignore
+		echo '<div class="notice crm-notice notice-success is-dismissible"><p>' . esc_html( 'Đã kết nối với "' . $chat . '". Bấm "Gửi tin nhắn thử" để kiểm tra.' ) . '</p></div>';
 	}
 	if ( 'error' === $msg && isset( $_GET['error'] ) ) { // phpcs:ignore
-		echo '<div class="notice notice-error"><p>' . esc_html( sanitize_text_field( wp_unslash( $_GET['error'] ) ) ) . '</p></div>'; // phpcs:ignore
+		echo '<div class="notice crm-notice notice-error"><p>' . esc_html( sanitize_text_field( wp_unslash( $_GET['error'] ) ) ) . '</p></div>'; // phpcs:ignore
 	}
 }
 
@@ -439,7 +477,7 @@ function fireai_crm_page_detail( $id ) {
 		<?php fireai_crm_notice(); ?>
 
 		<?php if ( $dupes ) : ?>
-			<div class="notice notice-warning inline"><p><strong>Số điện thoại này đã có <?php echo count( $dupes ); ?> lần khác trong CRM:</strong>
+			<div class="notice crm-notice notice-warning inline"><p><strong>Số điện thoại này đã có <?php echo count( $dupes ); ?> lần khác trong CRM:</strong>
 				<?php foreach ( $dupes as $d ) : ?>
 					<br><a href="<?php echo esc_url( add_query_arg( 'lead', $d->id, $base ) ); ?>"><?php echo esc_html( ( $d->name ? $d->name : '(Chưa có tên)' ) . ' – ' . mysql2date( 'd/m/Y', $d->created_at ) . ' – ' . fireai_crm_label( fireai_crm_statuses(), $d->status ) ); ?></a>
 				<?php endforeach; ?>
@@ -715,12 +753,56 @@ function fireai_crm_page_settings() {
 					<td><label><input type="checkbox" name="sale_own_only" value="1" <?php checked( $s['sale_own_only'] ); ?>> Sale chỉ thấy khách được giao cho mình hoặc do mình nhập</label></td>
 				</tr>
 				<tr>
+					<th colspan="2"><h2>Báo khách mới về điện thoại</h2></th>
+				</tr>
+				<tr>
+					<th><label for="crm-tg-token">Telegram Bot Token</label></th>
+					<td>
+						<input type="password" id="crm-tg-token" name="tg_token" class="regular-text code" autocomplete="off" placeholder="<?php echo $s['tg_token'] ? esc_attr( 'Đã lưu – để trống nếu không đổi' ) : '123456789:AA...'; ?>">
+						<?php if ( $s['tg_token'] ) : ?>
+							<label><input type="checkbox" name="tg_clear" value="1"> Xóa token</label>
+						<?php endif; ?>
+						<p class="description">Lấy từ @BotFather trên Telegram. Xem hướng dẫn trong file HUONG_DAN_CAI_DAT.</p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="crm-tg-chat">Telegram Chat ID</label></th>
+					<td>
+						<input type="text" id="crm-tg-chat" name="tg_chat_id" class="regular-text code" value="<?php echo esc_attr( $s['tg_chat_id'] ); ?>">
+						<p class="description">Không cần tự điền: lưu Bot Token trước, rồi bấm nút <strong>Tìm Chat ID</strong> bên dưới.</p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="crm-emails">Email nhận thông báo</label></th>
+					<td>
+						<input type="text" id="crm-emails" name="notify_emails" class="large-text" value="<?php echo esc_attr( $s['notify_emails'] ); ?>" placeholder="sale1@gmail.com, sale2@gmail.com">
+						<p class="description">Nhiều email cách nhau bằng dấu phẩy. Để trống nếu không cần.</p>
+					</td>
+				</tr>
+				<tr>
 					<th>Đổi mã bảo mật webhook</th>
 					<td><label><input type="checkbox" name="regen_key" value="1"> Tạo mã mới (mã cũ sẽ ngừng hoạt động)</label></td>
 				</tr>
 			</table>
 			<?php submit_button( 'Lưu cài đặt' ); ?>
 		</form>
+
+		<?php if ( $s['tg_token'] ) : ?>
+			<div class="crm-actions">
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="fireai_crm_tg_find">
+					<?php wp_nonce_field( 'fireai_crm_tg_find' ); ?>
+					<button class="button">Tìm Chat ID</button>
+				</form>
+				<?php if ( $s['tg_chat_id'] ) : ?>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="fireai_crm_tg_test">
+						<?php wp_nonce_field( 'fireai_crm_tg_test' ); ?>
+						<button class="button">Gửi tin nhắn thử</button>
+					</form>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
 
 		<h2>Nhận khách từ quảng cáo (Facebook, Google, TikTok...)</h2>
 		<p>Dùng Zapier hoặc Make để gửi khách từ form quảng cáo về địa chỉ sau, phương thức <strong>POST</strong>:</p>
@@ -750,6 +832,22 @@ function fireai_crm_handle_settings() {
 	$s                  = fireai_crm_settings();
 	$s['cf7_enabled']   = empty( $_POST['cf7_enabled'] ) ? 0 : 1;
 	$s['sale_own_only'] = empty( $_POST['sale_own_only'] ) ? 0 : 1;
+	$post = wp_unslash( $_POST );
+	$token = isset( $post['tg_token'] ) ? trim( sanitize_text_field( $post['tg_token'] ) ) : '';
+	if ( ! empty( $post['tg_clear'] ) ) {
+		$s['tg_token']   = '';
+		$s['tg_chat_id'] = '';
+	} elseif ( '' !== $token ) {
+		if ( ! preg_match( '/^\d+:[A-Za-z0-9_-]{20,}$/', $token ) ) {
+			fireai_crm_redirect( admin_url( 'admin.php?page=fireai-crm-settings' ), 'error', array( 'error' => 'Bot Token không đúng định dạng. Hãy sao chép lại nguyên dòng token từ @BotFather.' ) );
+		}
+		$s['tg_token'] = $token;
+	}
+	if ( empty( $post['tg_clear'] ) ) {
+		$s['tg_chat_id'] = isset( $post['tg_chat_id'] ) && preg_match( '/^-?\d+$/', trim( $post['tg_chat_id'] ) ) ? trim( $post['tg_chat_id'] ) : '';
+	}
+	$emails             = isset( $post['notify_emails'] ) ? explode( ',', $post['notify_emails'] ) : array();
+	$s['notify_emails'] = implode( ', ', array_filter( array_map( 'sanitize_email', array_map( 'trim', $emails ) ) ) );
 	if ( ! empty( $_POST['regen_key'] ) || '' === $s['webhook_key'] ) {
 		$s['webhook_key'] = wp_generate_password( 32, false );
 	}
@@ -769,3 +867,43 @@ function fireai_crm_handle_import() {
 	}
 	fireai_crm_redirect( $url, 'imported', array( 'count' => $result ) );
 }
+
+function fireai_crm_handle_tg_find() {
+	check_admin_referer( 'fireai_crm_tg_find' );
+	if ( ! fireai_crm_can_manage() ) {
+		wp_die( 'Bạn không có quyền.' );
+	}
+	$url   = admin_url( 'admin.php?page=fireai-crm-settings' );
+	$chats = fireai_crm_telegram_find_chats();
+	if ( is_wp_error( $chats ) ) {
+		fireai_crm_redirect( $url, 'error', array( 'error' => $chats->get_error_message() ) );
+	}
+	if ( ! $chats ) {
+		fireai_crm_redirect( $url, 'error', array( 'error' => 'Bot chưa nhận được tin nhắn nào. Hãy thêm bot vào nhóm Telegram, gửi /start trong nhóm, rồi bấm lại "Tìm Chat ID".' ) );
+	}
+	if ( count( $chats ) > 1 ) {
+		$list = array();
+		foreach ( $chats as $id => $name ) {
+			$list[] = $name . ': ' . $id;
+		}
+		fireai_crm_redirect( $url, 'error', array( 'error' => 'Bot đang ở nhiều cuộc trò chuyện. Chép số Chat ID của nhóm cần dùng vào ô Telegram Chat ID rồi bấm Lưu. ' . implode( ' | ', $list ) ) );
+	}
+	$s               = fireai_crm_settings();
+	$s['tg_chat_id'] = (string) key( $chats );
+	update_option( 'fireai_crm_settings', $s, false );
+	fireai_crm_redirect( $url, 'tg_found', array( 'chat' => rawurlencode( (string) current( $chats ) ) ) );
+}
+
+function fireai_crm_handle_tg_test() {
+	check_admin_referer( 'fireai_crm_tg_test' );
+	if ( ! fireai_crm_can_manage() ) {
+		wp_die( 'Bạn không có quyền.' );
+	}
+	$url    = admin_url( 'admin.php?page=fireai-crm-settings' );
+	$result = fireai_crm_telegram_send( "✅ Kết nối thành công!\nTừ giờ khách mới vào CRM sẽ được báo tại đây." );
+	if ( is_wp_error( $result ) ) {
+		fireai_crm_redirect( $url, 'error', array( 'error' => $result->get_error_message() ) );
+	}
+	fireai_crm_redirect( $url, 'tg_test' );
+}
+

@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function fireai_crm_activate() {
+	$previous = (string) get_option( 'fireai_crm_db_version' );
 	fireai_crm_install_tables();
 	fireai_crm_install_roles();
 
@@ -27,11 +28,45 @@ function fireai_crm_activate() {
 			false
 		);
 	}
+
+	if ( '' !== $previous && version_compare( $previous, '2', '<' ) ) {
+		fireai_crm_resync_form_leads();
+	}
 }
 
 function fireai_crm_maybe_upgrade() {
 	if ( get_option( 'fireai_crm_db_version' ) !== FIREAI_CRM_DB_VERSION ) {
 		fireai_crm_activate();
+	}
+}
+
+/**
+ * Bản 1.0 chưa đọc các trường utm_* trong form nên mọi khách đều ghi nguồn "Website"
+ * và utm_content bị hiểu nhầm là nội dung. Tính lại từ dữ liệu gốc cho các khách tự động
+ * mà Sale chưa đổi nguồn.
+ */
+function fireai_crm_resync_form_leads() {
+	global $wpdb;
+	$table = fireai_crm_table( 'leads' );
+	$rows  = $wpdb->get_results( "SELECT id, source, campaign, message, raw FROM {$table} WHERE created_by = 0 AND source = 'website' AND raw IS NOT NULL" ); // phpcs:ignore
+
+	foreach ( $rows as $row ) {
+		$raw = json_decode( (string) $row->raw, true );
+		if ( ! is_array( $raw ) || empty( $raw['fields'] ) || ! is_array( $raw['fields'] ) ) {
+			continue;
+		}
+		$title  = isset( $raw['form'] ) ? (string) $raw['form'] : (string) $row->campaign;
+		$url    = isset( $raw['url'] ) ? (string) $raw['url'] : '';
+		$lead   = fireai_crm_lead_from_form( $raw['fields'], $title, array(), $url );
+		$update = array(
+			'source'   => $lead['source'],
+			'campaign' => sanitize_text_field( $lead['campaign'] ),
+		);
+		// Chỉ thay nội dung khi vẫn còn dấu vết utm_*, tức là Sale chưa sửa tay.
+		if ( false !== strpos( (string) $row->message, 'utm_' ) || ( isset( $raw['fields']['utm_content'] ) && is_scalar( $raw['fields']['utm_content'] ) && '' !== (string) $raw['fields']['utm_content'] && 0 === strpos( (string) $row->message, (string) $raw['fields']['utm_content'] ) ) ) {
+			$update['message'] = sanitize_textarea_field( $lead['message'] );
+		}
+		$wpdb->update( $table, $update, array( 'id' => (int) $row->id ) );
 	}
 }
 
