@@ -6,6 +6,25 @@
 		});
 	});
 
+	// Chọn nhiều khách để xóa.
+	var checkAll = document.getElementById('crm-check-all');
+	var bulkButton = document.getElementById('crm-bulk-delete');
+	var checks = document.querySelectorAll('.crm-check');
+	function refreshBulk() {
+		var n = document.querySelectorAll('.crm-check:checked').length;
+		if (bulkButton) {
+			bulkButton.disabled = n === 0;
+			bulkButton.textContent = n ? 'Xóa ' + n + ' khách đã chọn' : 'Xóa khách đã chọn';
+		}
+	}
+	checks.forEach(function (c) { c.addEventListener('change', refreshBulk); });
+	if (checkAll) {
+		checkAll.addEventListener('change', function () {
+			checks.forEach(function (c) { c.checked = checkAll.checked; });
+			refreshBulk();
+		});
+	}
+
 	var phone = document.getElementById('crm-phone');
 	var box = document.getElementById('crm-phone-warning');
 	if (!phone || !box || !window.FireAICRM) {

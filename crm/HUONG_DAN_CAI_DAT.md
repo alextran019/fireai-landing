@@ -73,7 +73,7 @@ Nhãn đỏ **Trùng SĐT** nghĩa là số đó đã liên hệ nhiều lần. 
 - **Xuất Excel:** nút **Xuất Excel** cạnh tiêu đề trang Khách hàng (xuất đúng theo bộ lọc đang chọn).
 - **Giao khách cho Sale:** mở khách → chọn **Người phụ trách** → **Cập nhật**.
 - **Sale chỉ thấy khách của mình:** CRM → Cài đặt → tích ô tương ứng.
-- **Xóa khách:** mở khách → link **Xóa khách hàng** ở cuối trang.
+- **Xóa khách (VD khách test):** ở trang **Khách hàng**, tích ô vuông đầu dòng các khách cần xóa (ô ở dòng tiêu đề để chọn cả trang) → bấm **Xóa khách đã chọn** phía trên bảng. Hoặc mở từng khách → **Xóa khách hàng** ở cuối trang. Chỉ admin mới xóa được; xóa là mất vĩnh viễn.
 
 ## Phần 4: Báo khách mới về điện thoại (Telegram)
 

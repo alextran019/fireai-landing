@@ -17,6 +17,7 @@ add_action( 'admin_post_fireai_crm_save', 'fireai_crm_handle_save' );
 add_action( 'admin_post_fireai_crm_note', 'fireai_crm_handle_note' );
 add_action( 'admin_post_fireai_crm_quick_status', 'fireai_crm_handle_quick_status' );
 add_action( 'admin_post_fireai_crm_delete', 'fireai_crm_handle_delete' );
+add_action( 'admin_post_fireai_crm_bulk_delete', 'fireai_crm_handle_bulk_delete' );
 add_action( 'admin_post_fireai_crm_export', 'fireai_crm_handle_export' );
 add_action( 'admin_post_fireai_crm_settings', 'fireai_crm_handle_settings' );
 add_action( 'admin_post_fireai_crm_import', 'fireai_crm_handle_import' );
@@ -176,6 +177,9 @@ function fireai_crm_notice() {
 	if ( isset( $messages[ $msg ] ) ) {
 		echo '<div class="notice crm-notice notice-success is-dismissible"><p>' . esc_html( $messages[ $msg ] ) . '</p></div>';
 	}
+	if ( 'deleted_bulk' === $msg && isset( $_GET['count'] ) ) { // phpcs:ignore
+		echo '<div class="notice crm-notice notice-success is-dismissible"><p>' . esc_html( sprintf( 'Đã xóa %d khách hàng.', absint( $_GET['count'] ) ) ) . '</p></div>'; // phpcs:ignore
+	}
 	if ( 'imported' === $msg && isset( $_GET['count'] ) ) { // phpcs:ignore
 		echo '<div class="notice crm-notice notice-success is-dismissible"><p>' . esc_html( sprintf( 'Đã nhập %d khách hàng từ dữ liệu form cũ.', absint( $_GET['count'] ) ) ) . '</p></div>'; // phpcs:ignore
 	}
@@ -279,9 +283,23 @@ function fireai_crm_page_list() {
 			<a class="button-link" href="<?php echo esc_url( $base ); ?>">Xóa lọc</a>
 		</form>
 
+		<?php $can_delete = fireai_crm_can_manage(); ?>
+		<?php if ( $can_delete && $leads ) : ?>
+			<?php // Form riêng: các ô chọn trong bảng gắn vào form này qua thuộc tính form="", vì mỗi dòng đã có form đổi trạng thái. ?>
+			<form id="crm-bulk" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="crm-bulk" onsubmit="return confirm('Xóa vĩnh viễn các khách đã chọn và toàn bộ ghi chú của họ?');">
+				<input type="hidden" name="action" value="fireai_crm_bulk_delete">
+				<input type="hidden" name="back" value="<?php echo esc_attr( add_query_arg( array_merge( $f, array( 'paged' => $paged ) ), $base ) ); ?>">
+				<?php wp_nonce_field( 'fireai_crm_bulk_delete' ); ?>
+				<button class="button crm-danger" id="crm-bulk-delete" disabled>Xóa khách đã chọn</button>
+			</form>
+		<?php endif; ?>
+
 		<table class="wp-list-table widefat fixed striped crm-table">
 			<thead>
 				<tr>
+					<?php if ( $can_delete ) : ?>
+						<td class="check-column"><input type="checkbox" id="crm-check-all" aria-label="Chọn tất cả"></td>
+					<?php endif; ?>
 					<th class="col-date">Ngày</th>
 					<th>Khách hàng</th>
 					<th class="col-phone">Điện thoại</th>
@@ -293,11 +311,14 @@ function fireai_crm_page_list() {
 			</thead>
 			<tbody>
 			<?php if ( ! $leads ) : ?>
-				<tr><td colspan="7">Chưa có khách hàng nào phù hợp.</td></tr>
+				<tr><td colspan="<?php echo $can_delete ? 8 : 7; ?>">Chưa có khách hàng nào phù hợp.</td></tr>
 			<?php endif; ?>
 			<?php foreach ( $leads as $lead ) : ?>
 				<?php $url = add_query_arg( 'lead', $lead->id, $base ); ?>
 				<tr>
+					<?php if ( $can_delete ) : ?>
+						<th scope="row" class="check-column"><input type="checkbox" form="crm-bulk" name="ids[]" value="<?php echo esc_attr( $lead->id ); ?>" class="crm-check" aria-label="Chọn khách"></th>
+					<?php endif; ?>
 					<td class="col-date"><?php echo esc_html( mysql2date( 'd/m/Y H:i', $lead->created_at ) ); ?></td>
 					<td>
 						<strong><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( '' !== $lead->name ? $lead->name : '(Chưa có tên)' ); ?></a></strong>
@@ -654,10 +675,35 @@ function fireai_crm_handle_delete() {
 	if ( ! fireai_crm_can_manage() ) {
 		wp_die( 'Bạn không có quyền.' );
 	}
-	global $wpdb;
-	$wpdb->delete( fireai_crm_table( 'notes' ), array( 'lead_id' => $id ) );
-	$wpdb->delete( fireai_crm_table( 'leads' ), array( 'id' => $id ) );
+	fireai_crm_delete_leads( array( $id ) );
 	fireai_crm_redirect( admin_url( 'admin.php?page=fireai-crm' ), 'deleted' );
+}
+
+function fireai_crm_handle_bulk_delete() {
+	check_admin_referer( 'fireai_crm_bulk_delete' );
+	if ( ! fireai_crm_can_manage() ) {
+		wp_die( 'Bạn không có quyền.' );
+	}
+	$ids   = isset( $_POST['ids'] ) ? array_filter( array_map( 'absint', (array) wp_unslash( $_POST['ids'] ) ) ) : array();
+	$count = fireai_crm_delete_leads( $ids );
+	$back  = isset( $_POST['back'] ) ? esc_url_raw( wp_unslash( $_POST['back'] ) ) : admin_url( 'admin.php?page=fireai-crm' );
+	fireai_crm_redirect( $back, 'deleted_bulk', array( 'count' => $count ) );
+}
+
+/**
+ * Xóa khách cùng ghi chú; lượt bấm Gọi/Zalo đã gắn với khách được giữ lại (bỏ gắn).
+ *
+ * @return int Số khách đã xóa.
+ */
+function fireai_crm_delete_leads( array $ids ) {
+	global $wpdb;
+	$count = 0;
+	foreach ( array_unique( $ids ) as $id ) {
+		$wpdb->delete( fireai_crm_table( 'notes' ), array( 'lead_id' => $id ) );
+		$wpdb->update( fireai_crm_table( 'clicks' ), array( 'lead_id' => 0 ), array( 'lead_id' => $id ) );
+		$count += (int) $wpdb->delete( fireai_crm_table( 'leads' ), array( 'id' => $id ) );
+	}
+	return $count;
 }
 
 function fireai_crm_handle_export() {
@@ -815,7 +861,7 @@ function fireai_crm_page_settings() {
 			$bot_on = (bool) get_option( 'fireai_crm_tg_webhook_secret' );
 			$status = $bot_on ? fireai_crm_telegram_bot_status() : null;
 			?>
-			<p>Trong nhóm Sale gõ <code>/kh 0912345678 Anh Nam, hỏi báo cháy nhà xưởng</code> (khách gọi) hoặc <code>/zalo 0912… Chị Lan, nội dung</code> (khách nhắn Zalo) là khách vào CRM ngay. Gõ <code>/help</code> để xem hướng dẫn.</p>
+			<p>Người trực nhắn riêng cho bot, chỉ cần có số điện thoại, viết tự do: <code>0912345678 anh Nam hỏi báo cháy nhà xưởng</code>. Có chữ <code>zalo</code> trong tin thì nguồn là Zalo. Gõ trong nhóm Sale thì thêm <code>/kh</code> ở đầu. Gõ <code>/help</code> để xem hướng dẫn.</p>
 			<?php if ( $bot_on ) : ?>
 				<?php if ( is_wp_error( $status ) ) : ?>
 					<p class="crm-warning">Không kiểm tra được trạng thái bot: <?php echo esc_html( $status->get_error_message() ); ?></p>
