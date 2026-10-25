@@ -32,6 +32,26 @@ function fireai_crm_activate() {
 	if ( '' !== $previous && version_compare( $previous, '4', '<' ) ) {
 		fireai_crm_resync_form_leads();
 	}
+	if ( '' !== $previous && version_compare( $previous, '5', '<' ) ) {
+		fireai_crm_migrate_statuses();
+	}
+	fireai_crm_schedule_digest();
+}
+
+/**
+ * Bản 1.3 đổi trạng thái theo quy trình nhà phân phối.
+ */
+function fireai_crm_migrate_statuses() {
+	global $wpdb;
+	$table = fireai_crm_table( 'leads' );
+	$map   = array(
+		'contacting' => 'new',
+		'potential'  => 'quoted',
+		'won'        => 'contract',
+	);
+	foreach ( $map as $old => $new ) {
+		$wpdb->update( $table, array( 'status' => $new ), array( 'status' => $old ) );
+	}
 }
 
 function fireai_crm_maybe_upgrade() {
@@ -97,6 +117,8 @@ function fireai_crm_install_tables() {
 			status varchar(32) NOT NULL DEFAULT 'new',
 			assigned_to bigint(20) unsigned NOT NULL DEFAULT 0,
 			message text NULL,
+			next_contact date NULL DEFAULT NULL,
+			value bigint(20) unsigned NOT NULL DEFAULT 0,
 			external_ref varchar(191) NOT NULL DEFAULT '',
 			raw longtext NULL,
 			created_by bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -108,6 +130,7 @@ function fireai_crm_install_tables() {
 			KEY status (status),
 			KEY assigned_to (assigned_to),
 			KEY created_at (created_at),
+			KEY next_contact (next_contact),
 			KEY external_ref (external_ref)
 		) {$charset};"
 	);

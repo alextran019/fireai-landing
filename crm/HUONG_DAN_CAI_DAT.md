@@ -66,9 +66,20 @@ Nhân viên Sale đăng nhập tại `https://fireai.com.vn/wp-admin` sẽ vào 
 
 Nhãn đỏ **Trùng SĐT** nghĩa là số đó đã liên hệ nhiều lần. Bấm vào để xem tất cả.
 
-**Trạng thái:** Mới → Đang liên hệ → Tiềm năng → Đã chốt / Không thành công / Sai số – Rác.
+**Trạng thái (theo quy trình nhà phân phối):** Mới tiếp nhận → Đã gửi báo giá → Đã ký hợp đồng → Đã chuyển tiền. Ngoài ra: Không thành công, Sai số / Rác.
+
+### Hẹn chăm sóc và nhắc việc
+- Gọi / nhắn khách xong: mở khách → khung **Lịch sử chăm sóc** → ghi nội dung → chọn ngày **Hẹn liên hệ lại** → **Lưu ghi chú**.
+- Mỗi sáng (mặc định 8:00) nhóm Telegram nhận tin **"Việc chăm sóc khách"**: khách **quá hẹn**, khách **hẹn hôm nay**, khách **mới chưa xử lý**. Bấm tên khách để mở hồ sơ.
+- Trên trang **Khách hàng**, dòng **📅 Cần chăm sóc** ở đầu trang mở nhanh danh sách cần gọi hôm nay (quá hẹn xếp trước).
+- Khách ký hợp đồng: điền **Giá trị hợp đồng / tháng** (VD 300.000.000) để có số liệu trong Báo cáo.
+- Đổi giờ nhắc hoặc tắt nhắc: **CRM → Cài đặt → Nhắc việc mỗi sáng**. Nút **Gửi tin nhắc việc ngay** để thử.
+
+> Tin nhắc chạy theo lịch của WordPress, nên chỉ gửi khi website có người truy cập quanh giờ đó (website có quảng cáo thì gần như luôn có). Có thể gửi trễ vài phút.
 
 ## Phần 3: Dành cho Admin
+
+- **Báo cáo:** **CRM → Báo cáo**. Xem theo tháng này / tháng trước / 90 ngày / tùy chọn, gộp **theo mẫu quảng cáo**, **theo chiến dịch** hoặc **theo nguồn**. Mỗi dòng có: lượt bấm Gọi / Zalo, số khách vào, đã gửi báo giá, đã ký HĐ, tỉ lệ ký, đã chuyển tiền, tổng giá trị HĐ / tháng. Tính theo ngày khách vào CRM.
 
 - **Xuất Excel:** nút **Xuất Excel** cạnh tiêu đề trang Khách hàng (xuất đúng theo bộ lọc đang chọn).
 - **Giao khách cho Sale:** mở khách → chọn **Người phụ trách** → **Cập nhật**.

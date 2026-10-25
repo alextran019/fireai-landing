@@ -12,9 +12,9 @@
 .fireai-crm .crm-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; line-height: 1.6; vertical-align: middle; text-decoration: none; }
 .fireai-crm .crm-dupe { background: #fcf0f1; color: #b32d2e; margin-top: 4px; }
 .fireai-crm .crm-status-new { background: #e7f0fb; color: #135e96; }
-.fireai-crm .crm-status-contacting { background: #fff8e5; color: #8a6100; }
-.fireai-crm .crm-status-potential { background: #f3e8fd; color: #6b21a8; }
-.fireai-crm .crm-status-won { background: #e6f4ea; color: #1e7e34; }
+.fireai-crm .crm-status-quoted { background: #fff8e5; color: #8a6100; }
+.fireai-crm .crm-status-contract { background: #f3e8fd; color: #6b21a8; }
+.fireai-crm .crm-status-paid { background: #e6f4ea; color: #1e7e34; }
 .fireai-crm .crm-status-lost { background: #f0f0f1; color: #50575e; }
 .fireai-crm .crm-status-junk { background: #fcf0f1; color: #b32d2e; }
 .fireai-crm select.crm-status-select { width: 100%; border-color: transparent; font-weight: 600; }
@@ -48,3 +48,18 @@ body.fireai-crm-screen #wpbody-content .update-nag { display: none !important; }
 .fireai-crm .crm-bulk { margin: 0 0 8px; }
 .fireai-crm .crm-table .check-column { width: 32px; }
 .fireai-crm .button.crm-danger:not([disabled]) { color: #b32d2e; border-color: #b32d2e; }
+
+.fireai-crm .crm-follow { display: inline-block; margin-left: 8px; padding: 4px 10px; border-radius: 12px; background: #e7f0fb; text-decoration: none; }
+.fireai-crm .crm-follow.current { outline: 2px solid #2271b1; }
+.fireai-crm .crm-overdue { color: #b32d2e; font-weight: 600; }
+.fireai-crm .crm-due-today { color: #8a6100; font-weight: 600; }
+.fireai-crm .crm-next { margin-top: 4px; font-size: 12px; }
+.fireai-crm .crm-note-next { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+
+.fireai-crm .crm-cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; clear: both; }
+.fireai-crm .crm-card { flex: 1 1 160px; background: #fff; border: 1px solid #dcdcde; border-radius: 6px; padding: 12px 16px; }
+.fireai-crm .crm-card span { display: block; color: #646970; font-size: 12px; }
+.fireai-crm .crm-card strong { display: block; font-size: 22px; line-height: 1.4; }
+.fireai-crm .crm-card em { color: #646970; font-size: 12px; font-style: normal; }
+.fireai-crm .crm-report .col-name { width: 28%; }
+.fireai-crm .crm-report .col-value { width: 16%; text-align: right; }

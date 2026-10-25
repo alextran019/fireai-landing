@@ -30,15 +30,51 @@ function fireai_crm_sources() {
 	);
 }
 
+/**
+ * Các bước theo quy trình nhà phân phối: tiếp nhận → báo giá → ký hợp đồng → chuyển tiền.
+ */
 function fireai_crm_statuses() {
 	return array(
-		'new'        => 'Mới',
-		'contacting' => 'Đang liên hệ',
-		'potential'  => 'Tiềm năng',
-		'won'        => 'Đã chốt',
-		'lost'       => 'Không thành công',
-		'junk'       => 'Sai số / Rác',
+		'new'      => 'Mới tiếp nhận',
+		'quoted'   => 'Đã gửi báo giá',
+		'contract' => 'Đã ký hợp đồng',
+		'paid'     => 'Đã chuyển tiền',
+		'lost'     => 'Không thành công',
+		'junk'     => 'Sai số / Rác',
 	);
+}
+
+/**
+ * Thứ tự bước trong quy trình (dùng cho báo cáo: khách đã ký thì cũng đã qua bước báo giá).
+ * Không thành công / Sai số trả về -1.
+ */
+function fireai_crm_status_rank( $status ) {
+	$ranks = array(
+		'new'      => 0,
+		'quoted'   => 1,
+		'contract' => 2,
+		'paid'     => 3,
+	);
+	return isset( $ranks[ $status ] ) ? $ranks[ $status ] : -1;
+}
+
+/**
+ * Trạng thái đã kết thúc: không cần nhắc chăm sóc nữa.
+ */
+function fireai_crm_closed_statuses() {
+	return array( 'lost', 'junk' );
+}
+
+function fireai_crm_money( $value ) {
+	return number_format( (float) $value, 0, ',', '.' ) . ' đ';
+}
+
+/**
+ * Ngày dạng Y-m-d hợp lệ, hoặc chuỗi rỗng.
+ */
+function fireai_crm_sanitize_date( $date ) {
+	$date = trim( (string) $date );
+	return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) && checkdate( (int) substr( $date, 5, 2 ), (int) substr( $date, 8, 2 ), (int) substr( $date, 0, 4 ) ) ? $date : '';
 }
 
 function fireai_crm_label( $list, $key ) {
@@ -58,6 +94,8 @@ function fireai_crm_settings() {
 			'notify_emails' => '',
 			'click_track'   => 1,
 			'click_notify'  => 1,
+			'remind_on'     => 1,
+			'remind_time'   => '08:00',
 		)
 	);
 }
@@ -130,6 +168,8 @@ function fireai_crm_insert_lead( array $data ) {
 		'status'       => isset( $data['status'], $statuses[ $data['status'] ] ) ? $data['status'] : 'new',
 		'assigned_to'  => isset( $data['assigned_to'] ) ? absint( $data['assigned_to'] ) : 0,
 		'message'      => sanitize_textarea_field( isset( $data['message'] ) ? $data['message'] : '' ),
+		'next_contact' => ! empty( $data['next_contact'] ) && fireai_crm_sanitize_date( $data['next_contact'] ) ? $data['next_contact'] : null,
+		'value'        => isset( $data['value'] ) ? absint( $data['value'] ) : 0,
 		'external_ref' => sanitize_text_field( isset( $data['external_ref'] ) ? $data['external_ref'] : '' ),
 		'raw'          => isset( $data['raw'] ) ? wp_json_encode( $data['raw'], JSON_UNESCAPED_UNICODE ) : null,
 		'created_by'   => isset( $data['created_by'] ) ? absint( $data['created_by'] ) : get_current_user_id(),

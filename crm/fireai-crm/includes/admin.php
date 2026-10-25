@@ -24,6 +24,7 @@ add_action( 'admin_post_fireai_crm_import', 'fireai_crm_handle_import' );
 add_action( 'admin_post_fireai_crm_tg_find', 'fireai_crm_handle_tg_find' );
 add_action( 'admin_post_fireai_crm_tg_test', 'fireai_crm_handle_tg_test' );
 add_action( 'admin_post_fireai_crm_tg_bot', 'fireai_crm_handle_tg_bot' );
+add_action( 'admin_post_fireai_crm_digest_now', 'fireai_crm_handle_digest_now' );
 add_action( 'in_admin_header', 'fireai_crm_hide_other_notices', 1000 );
 add_filter( 'admin_body_class', 'fireai_crm_body_class' );
 add_action( 'wp_ajax_fireai_crm_check_phone', 'fireai_crm_ajax_check_phone' );
@@ -32,6 +33,7 @@ function fireai_crm_admin_menu() {
 	add_menu_page( 'Khách hàng', 'CRM', FIREAI_CRM_CAP, 'fireai-crm', 'fireai_crm_page_list', 'dashicons-groups', 3 );
 	add_submenu_page( 'fireai-crm', 'Danh sách khách hàng', 'Khách hàng', FIREAI_CRM_CAP, 'fireai-crm', 'fireai_crm_page_list' );
 	add_submenu_page( 'fireai-crm', 'Thêm khách hàng', 'Thêm khách (Hotline)', FIREAI_CRM_CAP, 'fireai-crm-new', 'fireai_crm_page_new' );
+	add_submenu_page( 'fireai-crm', 'Báo cáo', 'Báo cáo', FIREAI_CRM_MANAGE_CAP, 'fireai-crm-report', 'fireai_crm_page_report' );
 	add_submenu_page( 'fireai-crm', 'Cài đặt CRM', 'Cài đặt', FIREAI_CRM_MANAGE_CAP, 'fireai-crm-settings', 'fireai_crm_page_settings' );
 }
 
@@ -104,6 +106,7 @@ function fireai_crm_list_filters() {
 		'assigned' => isset( $get['assigned'] ) ? sanitize_text_field( $get['assigned'] ) : '',
 		'from'     => isset( $get['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $get['from'] ) ? $get['from'] : '',
 		'to'       => isset( $get['to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $get['to'] ) ? $get['to'] : '',
+		'follow'   => isset( $get['follow'] ) && 'due' === $get['follow'] ? 'due' : '',
 	);
 }
 
@@ -140,6 +143,13 @@ function fireai_crm_build_where( array $f, $skip = '' ) {
 	if ( '' !== $f['to'] ) {
 		$where[] = $wpdb->prepare( 'created_at <= %s', $f['to'] . ' 23:59:59' );
 	}
+	if ( 'due' === $f['follow'] ) {
+		// Cần chăm sóc: đã đến / quá ngày hẹn, hoặc khách mới chưa có hẹn.
+		$where[] = $wpdb->prepare(
+			"((next_contact <= %s AND status NOT IN ('" . implode( "','", array_map( 'esc_sql', fireai_crm_closed_statuses() ) ) . "')) OR (status = 'new' AND next_contact IS NULL))",
+			current_time( 'Y-m-d' )
+		);
+	}
 	if ( fireai_crm_restrict_to_own() ) {
 		$me      = get_current_user_id();
 		$where[] = $wpdb->prepare( '(assigned_to = %d OR created_by = %d)', $me, $me );
@@ -172,6 +182,8 @@ function fireai_crm_notice() {
 		'tg_test'  => 'Đã gửi tin nhắn thử. Kiểm tra nhóm Telegram trên điện thoại.',
 		'bot_on'   => 'Đã bật nhập khách qua Telegram. Thử gõ /kh trong nhóm Sale.',
 		'bot_off'  => 'Đã tắt nhập khách qua Telegram.',
+		'digest'   => 'Đã gửi tin nhắc việc vào nhóm Telegram.',
+		'no_tasks' => 'Hiện không có khách nào cần chăm sóc, chưa gửi tin.',
 	);
 	$msg = isset( $_GET['crm_msg'] ) ? sanitize_key( wp_unslash( $_GET['crm_msg'] ) ) : ''; // phpcs:ignore
 	if ( isset( $messages[ $msg ] ) ) {
@@ -213,7 +225,8 @@ function fireai_crm_page_list() {
 	$paged    = max( 1, isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1 ); // phpcs:ignore
 	$offset   = ( $paged - 1 ) * FIREAI_CRM_PER_PAGE;
 	$total    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE {$where}" ); // phpcs:ignore
-	$leads    = $wpdb->get_results( "SELECT * FROM {$table} WHERE {$where} ORDER BY created_at DESC, id DESC LIMIT " . (int) FIREAI_CRM_PER_PAGE . ' OFFSET ' . (int) $offset ); // phpcs:ignore
+	$order    = 'due' === $f['follow'] ? 'next_contact IS NULL, next_contact ASC, created_at DESC' : 'created_at DESC, id DESC';
+	$leads    = $wpdb->get_results( "SELECT * FROM {$table} WHERE {$where} ORDER BY {$order} LIMIT " . (int) FIREAI_CRM_PER_PAGE . ' OFFSET ' . (int) $offset ); // phpcs:ignore
 	$counts   = $wpdb->get_results( "SELECT status, COUNT(*) AS c FROM {$table} WHERE " . fireai_crm_build_where( $f, 'status' ) . ' GROUP BY status', OBJECT_K ); // phpcs:ignore
 	$statuses = fireai_crm_statuses();
 	$sources  = fireai_crm_sources();
@@ -243,6 +256,14 @@ function fireai_crm_page_list() {
 		<?php endif; ?>
 		<?php $clicks = fireai_crm_clicks_today(); ?>
 		<span class="crm-today">Hôm nay: <strong><?php echo esc_html( $today ); ?></strong> khách mới · <strong><?php echo esc_html( $clicks['call'] ); ?></strong> lượt bấm Gọi · <strong><?php echo esc_html( $clicks['zalo'] ); ?></strong> lượt bấm Zalo</span>
+		<?php $follow = fireai_crm_followup_counts(); ?>
+		<?php if ( array_sum( $follow ) ) : ?>
+			<a class="crm-follow<?php echo 'due' === $f['follow'] ? ' current' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'follow', 'due', $base ) ); ?>">
+				📅 Cần chăm sóc:
+				<?php if ( $follow['overdue'] ) : ?><strong class="crm-overdue"><?php echo esc_html( $follow['overdue'] ); ?> quá hẹn</strong> · <?php endif; ?>
+				<strong><?php echo esc_html( $follow['today'] ); ?></strong> hẹn hôm nay · <strong><?php echo esc_html( $follow['fresh'] ); ?></strong> khách mới chưa xử lý
+			</a>
+		<?php endif; ?>
 		<hr class="wp-header-end">
 		<?php fireai_crm_notice(); ?>
 
@@ -261,6 +282,7 @@ function fireai_crm_page_list() {
 		<form method="get" class="crm-filters">
 			<input type="hidden" name="page" value="fireai-crm">
 			<input type="hidden" name="status" value="<?php echo esc_attr( $f['status'] ); ?>">
+			<?php if ( $f['follow'] ) : ?><input type="hidden" name="follow" value="<?php echo esc_attr( $f['follow'] ); ?>"><?php endif; ?>
 			<input type="search" name="s" value="<?php echo esc_attr( $f['s'] ); ?>" placeholder="Tên, SĐT, email, chiến dịch...">
 			<select name="source">
 				<option value="">Mọi nguồn</option>
@@ -349,6 +371,13 @@ function fireai_crm_page_list() {
 								<?php endforeach; ?>
 							</select>
 						</form>
+						<?php if ( $lead->next_contact ) : ?>
+							<?php $due = strcmp( $lead->next_contact, current_time( 'Y-m-d' ) ); ?>
+							<div class="crm-next<?php echo $due < 0 ? ' crm-overdue' : ( 0 === $due ? ' crm-due-today' : '' ); ?>">📅 <?php echo esc_html( ( 0 === $due ? 'Hôm nay' : mysql2date( 'd/m/Y', $lead->next_contact ) ) ); ?></div>
+						<?php endif; ?>
+						<?php if ( (int) $lead->value ) : ?>
+							<div class="crm-muted"><?php echo esc_html( fireai_crm_money( $lead->value ) ); ?>/tháng</div>
+						<?php endif; ?>
 					</td>
 					<td class="col-user"><?php echo esc_html( fireai_crm_user_name( $lead->assigned_to ) ); ?></td>
 				</tr>
@@ -458,6 +487,20 @@ function fireai_crm_lead_form( $lead ) {
 				</td>
 			</tr>
 			<tr>
+				<th><label for="crm-next">Hẹn liên hệ lại</label></th>
+				<td>
+					<input type="date" id="crm-next" name="next_contact" value="<?php echo esc_attr( (string) $value( 'next_contact' ) ); ?>">
+					<p class="description">Đến ngày này, khách sẽ có trong tin nhắc việc buổi sáng trên Telegram. Để trống nếu chưa hẹn.</p>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="crm-value">Giá trị hợp đồng / tháng</label></th>
+				<td>
+					<input type="text" inputmode="numeric" id="crm-value" name="value" class="regular-text" value="<?php echo $value( 'value', 0 ) ? esc_attr( number_format( (float) $value( 'value' ), 0, ',', '.' ) ) : ''; ?>" placeholder="VD: 300.000.000"> đ
+					<p class="description">Điền khi khách ký hợp đồng, để thống kê doanh số trong Báo cáo.</p>
+				</td>
+			</tr>
+			<tr>
 				<th><label for="crm-message"><?php echo $is_new ? 'Nội dung cuộc gọi' : 'Nội dung khách gửi'; ?></label></th>
 				<td><textarea id="crm-message" name="message" rows="5" class="large-text"><?php echo esc_textarea( (string) $value( 'message' ) ); ?></textarea></td>
 			</tr>
@@ -531,8 +574,11 @@ function fireai_crm_page_detail( $id ) {
 					<input type="hidden" name="action" value="fireai_crm_note">
 					<input type="hidden" name="id" value="<?php echo esc_attr( $lead->id ); ?>">
 					<?php wp_nonce_field( 'fireai_crm_note_' . $lead->id ); ?>
-					<textarea name="content" rows="3" class="large-text" placeholder="VD: Đã gọi, khách hẹn gọi lại thứ 5..." required></textarea>
-					<p><button class="button button-primary">Thêm ghi chú</button></p>
+					<textarea name="content" rows="3" class="large-text" placeholder="VD: Đã gửi báo giá qua Zalo, khách hẹn trả lời thứ 5..."></textarea>
+					<p class="crm-note-next">
+						<label>Hẹn liên hệ lại <input type="date" name="next_contact" value="<?php echo esc_attr( (string) $lead->next_contact ); ?>"></label>
+						<button class="button button-primary">Lưu ghi chú</button>
+					</p>
 				</form>
 				<?php if ( ! $notes ) : ?>
 					<p class="crm-muted">Chưa có ghi chú nào.</p>
@@ -582,8 +628,12 @@ function fireai_crm_handle_save() {
 		'status'   => isset( $post['status'] ) ? sanitize_key( $post['status'] ) : 'new',
 		'message'  => isset( $post['message'] ) ? $post['message'] : '',
 	);
+	$next_contact = isset( $post['next_contact'] ) ? fireai_crm_sanitize_date( $post['next_contact'] ) : '';
+	$deal_value   = isset( $post['value'] ) ? (int) preg_replace( '/\D+/', '', (string) $post['value'] ) : 0;
 
 	if ( ! $id ) {
+		$data['next_contact'] = $next_contact;
+		$data['value']        = $deal_value;
 		$data['assigned_to'] = fireai_crm_can_manage() && isset( $post['assigned_to'] ) ? absint( $post['assigned_to'] ) : get_current_user_id();
 		$new_id              = fireai_crm_insert_lead( $data );
 		if ( ! $new_id ) {
@@ -606,8 +656,10 @@ function fireai_crm_handle_save() {
 		'source'     => isset( $sources[ $data['source'] ] ) ? $data['source'] : $lead->source,
 		'campaign'   => sanitize_text_field( $data['campaign'] ),
 		'status'     => isset( $statuses[ $data['status'] ] ) ? $data['status'] : $lead->status,
-		'message'    => sanitize_textarea_field( $data['message'] ),
-		'updated_at' => current_time( 'mysql' ),
+		'message'      => sanitize_textarea_field( $data['message'] ),
+		'next_contact' => '' !== $next_contact ? $next_contact : null,
+		'value'        => $deal_value,
+		'updated_at'   => current_time( 'mysql' ),
 	);
 	if ( fireai_crm_can_manage() && isset( $post['assigned_to'] ) ) {
 		$update['assigned_to'] = absint( $post['assigned_to'] );
@@ -631,6 +683,12 @@ function fireai_crm_log_changes( $lead, array $update ) {
 	}
 	if ( isset( $update['assigned_to'] ) && (int) $update['assigned_to'] !== (int) $lead->assigned_to ) {
 		$lines[] = 'Giao cho: ' . fireai_crm_user_name( $update['assigned_to'] );
+	}
+	if ( array_key_exists( 'next_contact', $update ) && (string) $update['next_contact'] !== (string) $lead->next_contact ) {
+		$lines[] = $update['next_contact'] ? 'Hẹn liên hệ lại: ' . mysql2date( 'd/m/Y', $update['next_contact'] ) : 'Bỏ lịch hẹn';
+	}
+	if ( isset( $update['value'] ) && (int) $update['value'] !== (int) $lead->value ) {
+		$lines[] = 'Giá trị hợp đồng / tháng: ' . fireai_crm_money( $update['value'] );
 	}
 	if ( $lines ) {
 		fireai_crm_add_note( $lead->id, implode( "\n", $lines ) );
@@ -665,7 +723,14 @@ function fireai_crm_handle_note() {
 	if ( ! fireai_crm_can_access_lead( $lead ) ) {
 		wp_die( 'Bạn không có quyền.' );
 	}
-	fireai_crm_add_note( $id, isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '' ); // phpcs:ignore
+	$content = isset( $_POST['content'] ) ? trim( (string) wp_unslash( $_POST['content'] ) ) : ''; // phpcs:ignore
+	$next    = isset( $_POST['next_contact'] ) ? fireai_crm_sanitize_date( wp_unslash( $_POST['next_contact'] ) ) : (string) $lead->next_contact; // phpcs:ignore
+	if ( $next !== (string) $lead->next_contact ) {
+		global $wpdb;
+		$wpdb->update( fireai_crm_table( 'leads' ), array( 'next_contact' => '' !== $next ? $next : null ), array( 'id' => $id ) );
+		$content = trim( $content . "\n" . ( '' !== $next ? 'Hẹn liên hệ lại: ' . mysql2date( 'd/m/Y', $next ) : 'Bỏ lịch hẹn' ) );
+	}
+	fireai_crm_add_note( $id, $content );
 	fireai_crm_redirect( fireai_crm_lead_url( $id ), 'note' );
 }
 
@@ -722,7 +787,7 @@ function fireai_crm_handle_export() {
 
 	$out = fopen( 'php://output', 'w' );
 	fwrite( $out, "\xEF\xBB\xBF" ); // BOM để Excel hiển thị đúng tiếng Việt.
-	fputcsv( $out, array( 'ID', 'Ngày', 'Tên', 'Điện thoại', 'Email', 'Nguồn', 'Chiến dịch', 'Trạng thái', 'Phụ trách', 'Nội dung' ) );
+	fputcsv( $out, array( 'ID', 'Ngày', 'Tên', 'Điện thoại', 'Email', 'Nguồn', 'Chiến dịch', 'Trạng thái', 'Hẹn liên hệ', 'Giá trị HĐ / tháng', 'Phụ trách', 'Nội dung' ) );
 	foreach ( $rows as $r ) {
 		fputcsv(
 			$out,
@@ -736,6 +801,8 @@ function fireai_crm_handle_export() {
 				fireai_crm_label( fireai_crm_sources(), $r->source ),
 				fireai_crm_csv_safe( $r->campaign ),
 				fireai_crm_label( fireai_crm_statuses(), $r->status ),
+				$r->next_contact ? mysql2date( 'd/m/Y', $r->next_contact ) : '',
+				(int) $r->value,
 				fireai_crm_user_name( $r->assigned_to ),
 				fireai_crm_csv_safe( $r->message ),
 			)
@@ -822,6 +889,17 @@ function fireai_crm_page_settings() {
 					</td>
 				</tr>
 				<tr>
+					<th>Nhắc việc mỗi sáng</th>
+					<td>
+						<label><input type="checkbox" name="remind_on" value="1" <?php checked( $s['remind_on'] ); ?>> Gửi danh sách khách quá hẹn, hẹn hôm nay và khách mới chưa xử lý vào nhóm Telegram (và email ở trên) lúc</label>
+						<input type="time" name="remind_time" value="<?php echo esc_attr( $s['remind_time'] ); ?>">
+						<?php $next_run = wp_next_scheduled( FIREAI_CRM_DIGEST_HOOK ); ?>
+						<?php if ( $next_run ) : ?>
+							<p class="description">Lần gửi tới: <?php echo esc_html( wp_date( 'H:i d/m/Y', $next_run ) ); ?>. Cần website có người truy cập quanh giờ này thì tin mới gửi đúng giờ.</p>
+						<?php endif; ?>
+					</td>
+				</tr>
+				<tr>
 					<th>Nút Gọi / Zalo trên website</th>
 					<td>
 						<label><input type="checkbox" name="click_track" value="1" <?php checked( $s['click_track'] ); ?>> Đếm lượt khách bấm Gọi / Chat Zalo và ghi nhận nguồn quảng cáo</label><br>
@@ -849,6 +927,11 @@ function fireai_crm_page_settings() {
 						<?php wp_nonce_field( 'fireai_crm_tg_test' ); ?>
 						<button class="button">Gửi tin nhắn thử</button>
 					</form>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="fireai_crm_digest_now">
+						<?php wp_nonce_field( 'fireai_crm_digest_now' ); ?>
+						<button class="button">Gửi tin nhắc việc ngay</button>
+					</form>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
@@ -868,7 +951,7 @@ function fireai_crm_page_settings() {
 				<?php elseif ( ! empty( $status['last_error_message'] ) && ! empty( $status['last_error_date'] ) && time() - (int) $status['last_error_date'] < DAY_IN_SECONDS ) : ?>
 					<p class="crm-warning"><strong>Telegram không gửi được tin về website:</strong> <?php echo esc_html( $status['last_error_message'] ); ?>. Nếu lỗi là 401/403, kiểm tra plugin bảo mật (All-In-One Security) có đang chặn REST API không.</p>
 				<?php else : ?>
-					<p><span class="crm-badge crm-status-won">Đang hoạt động</span></p>
+					<p><span class="crm-badge crm-status-paid">Đang hoạt động</span></p>
 				<?php endif; ?>
 			<?php endif; ?>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -933,10 +1016,13 @@ function fireai_crm_handle_settings() {
 	$s['notify_emails'] = implode( ', ', array_filter( array_map( 'sanitize_email', array_map( 'trim', $emails ) ) ) );
 	$s['click_track']   = empty( $post['click_track'] ) ? 0 : 1;
 	$s['click_notify']  = empty( $post['click_notify'] ) ? 0 : 1;
+	$s['remind_on']     = empty( $post['remind_on'] ) ? 0 : 1;
+	$s['remind_time']   = isset( $post['remind_time'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $post['remind_time'] ) ? $post['remind_time'] : '08:00';
 	if ( ! empty( $_POST['regen_key'] ) || '' === $s['webhook_key'] ) {
 		$s['webhook_key'] = wp_generate_password( 32, false );
 	}
 	update_option( 'fireai_crm_settings', $s, false );
+	fireai_crm_schedule_digest();
 	fireai_crm_redirect( admin_url( 'admin.php?page=fireai-crm-settings' ), 'settings' );
 }
 
@@ -1004,4 +1090,17 @@ function fireai_crm_handle_tg_bot() {
 		fireai_crm_redirect( $url, 'error', array( 'error' => $result->get_error_message() ) );
 	}
 	fireai_crm_redirect( $url, $enable ? 'bot_on' : 'bot_off' );
+}
+
+function fireai_crm_handle_digest_now() {
+	check_admin_referer( 'fireai_crm_digest_now' );
+	if ( ! fireai_crm_can_manage() ) {
+		wp_die( 'Bạn không có quyền.' );
+	}
+	$url    = admin_url( 'admin.php?page=fireai-crm-settings' );
+	$result = fireai_crm_send_digest();
+	if ( is_wp_error( $result ) ) {
+		fireai_crm_redirect( $url, 'error', array( 'error' => $result->get_error_message() ) );
+	}
+	fireai_crm_redirect( $url, $result ? 'digest' : 'no_tasks' );
 }
