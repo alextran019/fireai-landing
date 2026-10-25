@@ -48,7 +48,13 @@ function fireai_crm_from_cf7( $contact_form ) {
  * Chiến dịch lấy từ utm_campaign / utm_content, nếu không có thì là tên form.
  */
 function fireai_crm_lead_from_form( array $fields, $form_title, array $extra = array(), $url = '' ) {
-	$mapped  = fireai_crm_map_fields( $fields );
+	$mapped = fireai_crm_map_fields( $fields );
+	// Form có trường ẩn chứa link trang (page_url...) thì dùng nó để đoán nguồn khi thiếu utm.
+	foreach ( array( 'page_url', 'landing_page', 'landing_url', 'current_url' ) as $key ) {
+		if ( '' === $url && ! empty( $fields[ $key ] ) && is_scalar( $fields[ $key ] ) ) {
+			$url = (string) $fields[ $key ];
+		}
+	}
 	$fromurl = fireai_crm_detect_source( $url );
 
 	$mapped['source']     = $mapped['source'] ? $mapped['source'] : ( $fromurl['source'] ? $fromurl['source'] : 'website' );

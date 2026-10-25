@@ -233,10 +233,14 @@ function fireai_crm_detect_source( $url ) {
 }
 
 /**
- * Trường form chỉ dùng để theo dõi quảng cáo: không đưa vào nội dung.
+ * Trường form ẩn chỉ dùng để theo dõi quảng cáo (utm, mã click, link trang, mã sự kiện CAPI):
+ * không đưa vào nội dung, vẫn giữ trong "Dữ liệu gốc".
  */
 function fireai_crm_is_tracking_key( $key ) {
-	return (bool) preg_match( '/^(utm_[a-z]+|fbclid|gclid|ttclid|fbc|fbp|gbraid|wbraid)$/', strtolower( (string) $key ) );
+	return (bool) preg_match(
+		'/^(utm_[a-z]+|fbclid|gclid|ttclid|fbc|fbp|gbraid|wbraid|page_url|page_uri|landing_page|landing_url|current_url|source_url|referrer|referer|capi_[a-z_]+|event_id|external_id)$/',
+		strtolower( (string) $key )
+	);
 }
 
 /**
