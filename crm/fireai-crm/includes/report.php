@@ -68,9 +68,29 @@ function fireai_crm_report_data( $from, $to, $group ) {
 		'zalo'     => 0,
 	);
 
-	$rows  = array();
-	$leads = $wpdb->get_results( 'SELECT source, campaign, status, value FROM ' . fireai_crm_table( 'leads' ) . " WHERE {$range}" ); // phpcs:ignore
+	$rows     = array();
+	$response = array(
+		'count'   => 0,
+		'minutes' => 0,
+		'fast'    => 0,
+		'waiting' => 0,
+	);
+	$first    = max( 1, (int) fireai_crm_settings()['sla_first'] );
+	$since    = (string) get_option( 'fireai_crm_response_since', '' );
+	$leads    = $wpdb->get_results( 'SELECT source, campaign, status, value, created_by, created_at, first_contact_at FROM ' . fireai_crm_table( 'leads' ) . " WHERE {$range}" ); // phpcs:ignore
 	foreach ( $leads as $lead ) {
+		// Thời gian phản hồi: chỉ tính khách tự đổ về (form, quảng cáo), trong giờ làm việc.
+		if ( ! (int) $lead->created_by && 'junk' !== $lead->status && $lead->created_at >= $since ) {
+			if ( $lead->first_contact_at ) {
+				$minutes = fireai_crm_response_minutes( $lead->created_at, $lead->first_contact_at );
+				$response['count']++;
+				$response['minutes'] += $minutes;
+				$response['fast']    += $minutes <= $first ? 1 : 0;
+			} elseif ( 'new' === $lead->status ) {
+				$response['waiting']++;
+			}
+		}
+
 		list( $key, $campaign ) = $key_of( $lead->source, $lead->campaign );
 		if ( ! isset( $rows[ $key ] ) ) {
 			$rows[ $key ] = array_merge( $empty, array( 'source' => $lead->source, 'campaign' => $campaign ) );
@@ -108,7 +128,18 @@ function fireai_crm_report_data( $from, $to, $group ) {
 			$total[ $field ] += $row[ $field ];
 		}
 	}
+	$total['response'] = $response;
 	return array( $rows, $total );
+}
+
+function fireai_crm_duration( $minutes ) {
+	if ( $minutes < 60 ) {
+		return $minutes . ' phút';
+	}
+	if ( $minutes < 24 * 60 ) {
+		return rtrim( rtrim( number_format( $minutes / 60, 1, ',', '' ), '0' ), ',' ) . ' giờ';
+	}
+	return rtrim( rtrim( number_format( $minutes / 1440, 1, ',', '' ), '0' ), ',' ) . ' ngày';
 }
 
 function fireai_crm_rate( $part, $whole ) {
@@ -158,6 +189,8 @@ function fireai_crm_page_report() {
 			<div class="crm-card"><span>Đã gửi báo giá</span><strong><?php echo esc_html( $total['quoted'] ); ?></strong><em><?php echo esc_html( fireai_crm_rate( $total['quoted'], $valid ) ); ?> khách hợp lệ</em></div>
 			<div class="crm-card"><span>Đã ký hợp đồng</span><strong><?php echo esc_html( $total['contract'] ); ?></strong><em><?php echo esc_html( fireai_crm_rate( $total['contract'], $valid ) ); ?> khách hợp lệ</em></div>
 			<div class="crm-card"><span>Đã chuyển tiền</span><strong><?php echo esc_html( $total['paid'] ); ?></strong><em><?php echo esc_html( fireai_crm_rate( $total['paid'], $total['contract'] ) ); ?> số đã ký</em></div>
+			<?php $resp = $total['response']; ?>
+			<div class="crm-card"><span>Phản hồi khách form</span><strong><?php echo $resp['count'] ? esc_html( fireai_crm_duration( (int) round( $resp['minutes'] / $resp['count'] ) ) ) : '–'; ?></strong><em><?php echo esc_html( fireai_crm_rate( $resp['fast'], $resp['count'] ) . ' trong ' . (int) fireai_crm_settings()['sla_first'] . ' phút' . ( $resp['waiting'] ? ' · ' . $resp['waiting'] . ' chưa liên hệ' : '' ) ); ?></em></div>
 			<div class="crm-card"><span>Giá trị HĐ / tháng</span><strong><?php echo esc_html( fireai_crm_money( $total['value'] ) ); ?></strong><em>các hợp đồng đã ký</em></div>
 		</div>
 

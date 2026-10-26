@@ -371,6 +371,9 @@ function fireai_crm_page_list() {
 								<?php endforeach; ?>
 							</select>
 						</form>
+						<?php if ( 'new' === $lead->status && ! $lead->first_contact_at && ! (int) $lead->created_by ) : ?>
+							<div class="crm-next crm-overdue">⏰ Chưa liên hệ</div>
+						<?php endif; ?>
 						<?php if ( $lead->next_contact ) : ?>
 							<?php $due = strcmp( $lead->next_contact, current_time( 'Y-m-d' ) ); ?>
 							<div class="crm-next<?php echo $due < 0 ? ' crm-overdue' : ( 0 === $due ? ' crm-due-today' : '' ); ?>">📅 <?php echo esc_html( ( 0 === $due ? 'Hôm nay' : mysql2date( 'd/m/Y', $lead->next_contact ) ) ); ?></div>
@@ -693,6 +696,10 @@ function fireai_crm_log_changes( $lead, array $update ) {
 	if ( $lines ) {
 		fireai_crm_add_note( $lead->id, implode( "\n", $lines ) );
 	}
+	// Đổi trạng thái hoặc đặt hẹn nghĩa là Sale đã xử lý khách: dừng nhắc phản hồi.
+	if ( ( isset( $update['status'] ) && $update['status'] !== $lead->status ) || ! empty( $update['next_contact'] ) ) {
+		fireai_crm_mark_contacted( $lead->id );
+	}
 }
 
 function fireai_crm_handle_quick_status() {
@@ -731,6 +738,7 @@ function fireai_crm_handle_note() {
 		$content = trim( $content . "\n" . ( '' !== $next ? 'Hẹn liên hệ lại: ' . mysql2date( 'd/m/Y', $next ) : 'Bỏ lịch hẹn' ) );
 	}
 	fireai_crm_add_note( $id, $content );
+	fireai_crm_mark_contacted( $id );
 	fireai_crm_redirect( fireai_crm_lead_url( $id ), 'note' );
 }
 
@@ -889,6 +897,16 @@ function fireai_crm_page_settings() {
 					</td>
 				</tr>
 				<tr>
+					<th>Nhắc phản hồi khách mới</th>
+					<td>
+						<label><input type="checkbox" name="sla_on" value="1" <?php checked( $s['sla_on'] ); ?>> Khách điền form chưa ai liên hệ sau</label>
+						<input type="number" name="sla_first" min="1" max="600" class="small-text" value="<?php echo esc_attr( $s['sla_first'] ); ?>"> phút thì nhắc vào nhóm Telegram, sau
+						<input type="number" name="sla_second" min="2" max="1440" class="small-text" value="<?php echo esc_attr( $s['sla_second'] ); ?>"> phút nhắc gấp lần 2.
+						<p>Giờ làm việc từ <input type="time" name="work_start" value="<?php echo esc_attr( $s['work_start'] ); ?>"> đến <input type="time" name="work_end" value="<?php echo esc_attr( $s['work_end'] ); ?>"></p>
+						<p class="description">Khách được coi là đã liên hệ khi Sale đổi trạng thái, ghi chú hoặc đặt hẹn. Khách vào ngoài giờ làm việc được tính từ giờ mở cửa hôm sau. Khách do người trực nhập qua bot / hotline không bị nhắc.</p>
+					</td>
+				</tr>
+				<tr>
 					<th>Nhắc việc mỗi sáng</th>
 					<td>
 						<label><input type="checkbox" name="remind_on" value="1" <?php checked( $s['remind_on'] ); ?>> Gửi danh sách khách quá hẹn, hẹn hôm nay và khách mới chưa xử lý vào nhóm Telegram (và email ở trên) lúc</label>
@@ -903,7 +921,7 @@ function fireai_crm_page_settings() {
 					<th>Nút Gọi / Zalo trên website</th>
 					<td>
 						<label><input type="checkbox" name="click_track" value="1" <?php checked( $s['click_track'] ); ?>> Đếm lượt khách bấm Gọi / Chat Zalo và ghi nhận nguồn quảng cáo</label><br>
-						<label><input type="checkbox" name="click_notify" value="1" <?php checked( $s['click_notify'] ); ?>> Báo vào nhóm Telegram mỗi khi có khách bấm</label>
+						<label><input type="checkbox" name="click_notify" value="1" <?php checked( $s['click_notify'] ); ?>> Báo vào nhóm Telegram mỗi khi có khách bấm (không khuyên dùng: nhiều người bấm nhưng không nhắn)</label>
 					</td>
 				</tr>
 				<tr>
@@ -1018,11 +1036,17 @@ function fireai_crm_handle_settings() {
 	$s['click_notify']  = empty( $post['click_notify'] ) ? 0 : 1;
 	$s['remind_on']     = empty( $post['remind_on'] ) ? 0 : 1;
 	$s['remind_time']   = isset( $post['remind_time'] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $post['remind_time'] ) ? $post['remind_time'] : '08:00';
+	$s['sla_on']        = empty( $post['sla_on'] ) ? 0 : 1;
+	$s['sla_first']     = isset( $post['sla_first'] ) ? min( 600, max( 1, absint( $post['sla_first'] ) ) ) : 15;
+	$s['sla_second']    = isset( $post['sla_second'] ) ? min( 1440, max( $s['sla_first'] + 1, absint( $post['sla_second'] ) ) ) : 60;
+	foreach ( array( 'work_start' => '08:00', 'work_end' => '20:00' ) as $key => $default ) {
+		$s[ $key ] = isset( $post[ $key ] ) && preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $post[ $key ] ) ? $post[ $key ] : $default;
+	}
 	if ( ! empty( $_POST['regen_key'] ) || '' === $s['webhook_key'] ) {
 		$s['webhook_key'] = wp_generate_password( 32, false );
 	}
 	update_option( 'fireai_crm_settings', $s, false );
-	fireai_crm_schedule_digest();
+	fireai_crm_schedule_reminders();
 	fireai_crm_redirect( admin_url( 'admin.php?page=fireai-crm-settings' ), 'settings' );
 }
 

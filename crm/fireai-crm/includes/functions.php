@@ -93,9 +93,14 @@ function fireai_crm_settings() {
 			'tg_chat_id'    => '',
 			'notify_emails' => '',
 			'click_track'   => 1,
-			'click_notify'  => 1,
+			'click_notify'  => 0,
 			'remind_on'     => 1,
 			'remind_time'   => '08:00',
+			'sla_on'        => 1,
+			'sla_first'     => 15,
+			'sla_second'    => 60,
+			'work_start'    => '08:00',
+			'work_end'      => '20:00',
 		)
 	);
 }
@@ -180,6 +185,8 @@ function fireai_crm_insert_lead( array $data ) {
 	if ( '' === $row['name'] && '' === $row['phone'] && '' === $row['email'] ) {
 		return 0;
 	}
+	// Khách do người nhập tay (hotline, bot) coi như đã liên hệ; khách tự đổ về thì chờ Sale liên hệ.
+	$row['first_contact_at'] = $row['created_by'] || ! empty( $data['contacted'] ) ? $now : null;
 
 	$ok = $wpdb->insert( fireai_crm_table( 'leads' ), $row );
 	if ( ! $ok ) {
@@ -189,6 +196,21 @@ function fireai_crm_insert_lead( array $data ) {
 	$id = (int) $wpdb->insert_id;
 	do_action( 'fireai_crm_lead_created', $id, $row, $data );
 	return $id;
+}
+
+/**
+ * Ghi nhận lần liên hệ đầu tiên (đổi trạng thái, ghi chú, đặt hẹn): dừng nhắc phản hồi
+ * và dùng để tính thời gian phản hồi trong Báo cáo.
+ */
+function fireai_crm_mark_contacted( $lead_id ) {
+	global $wpdb;
+	$wpdb->query(
+		$wpdb->prepare(
+			'UPDATE ' . fireai_crm_table( 'leads' ) . ' SET first_contact_at = %s WHERE id = %d AND first_contact_at IS NULL',
+			current_time( 'mysql' ),
+			$lead_id
+		)
+	);
 }
 
 function fireai_crm_add_note( $lead_id, $content, $user_id = null ) {

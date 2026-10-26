@@ -68,6 +68,15 @@ Nhãn đỏ **Trùng SĐT** nghĩa là số đó đã liên hệ nhiều lần. 
 
 **Trạng thái (theo quy trình nhà phân phối):** Mới tiếp nhận → Đã gửi báo giá → Đã ký hợp đồng → Đã chuyển tiền. Ngoài ra: Không thành công, Sai số / Rác.
 
+### Nhắc phản hồi khách điền form
+- Khách điền form (website / quảng cáo) mà **sau 15 phút** chưa ai liên hệ → nhóm Telegram nhận tin **"⏰ Khách điền form 15 phút chưa được liên hệ"**. **Sau 60 phút** vẫn chưa → nhắc gấp **"🚨 Quá 60 phút vẫn chưa liên hệ"**.
+- Khách được tính là **đã liên hệ** khi Sale: đổi trạng thái, **hoặc** ghi chú, **hoặc** đặt hẹn. Làm 1 trong 3 việc này là dừng nhắc.
+- Chỉ nhắc **trong giờ làm việc** (mặc định 8:00–20:00). Khách vào ban đêm được tính từ 8:00 sáng hôm sau.
+- Khách do người trực nhập qua bot / hotline không bị nhắc (đã nói chuyện rồi).
+- Trên trang Khách hàng, khách chưa ai liên hệ có nhãn đỏ **⏰ Chưa liên hệ**.
+- Đổi số phút / giờ làm việc: **CRM → Cài đặt → Nhắc phản hồi khách mới**.
+- **CRM → Báo cáo** có ô **Phản hồi khách form**: thời gian phản hồi trung bình và % khách được liên hệ trong 15 phút (tính từ khi cài bản 1.4).
+
 ### Hẹn chăm sóc và nhắc việc
 - Gọi / nhắn khách xong: mở khách → khung **Lịch sử chăm sóc** → ghi nội dung → chọn ngày **Hẹn liên hệ lại** → **Lưu ghi chú**.
 - Mỗi sáng (mặc định 8:00) nhóm Telegram nhận tin **"Việc chăm sóc khách"**: khách **quá hẹn**, khách **hẹn hôm nay**, khách **mới chưa xử lý**. Bấm tên khách để mở hồ sơ.
@@ -161,11 +170,10 @@ Nếu người trực có tài khoản CRM: đăng nhập → **Hồ sơ** → �
 
 Khi khách bấm **Gọi ngay** hoặc **Chat Zalo**, website không biết được số điện thoại của khách (điện thoại và Zalo không cho phép), nhưng biết khách **đến từ quảng cáo nào**. CRM sẽ:
 
-1. **Báo vào nhóm Telegram** ngay lúc khách bấm: "📞 Có khách vừa bấm GỌI HOTLINE – Nguồn: Facebook · npp-mien-nam · M1A".
-2. **Tự gắn chiến dịch**: nếu trong 30 phút sau, người cầm máy gõ `/kh` (hoặc `/zalo`), khách đó được ghi luôn chiến dịch quảng cáo của lượt bấm.
+1. **Đếm lượt bấm** theo từng nguồn / mẫu quảng cáo trong **CRM → Báo cáo** (cột Bấm Gọi / Bấm Zalo). Mặc định **không** báo vào nhóm Telegram vì nhiều người bấm nhưng không nhắn / gọi tiếp; có thể bật lại trong Cài đặt nếu cần.
+2. **Tự gắn chiến dịch**: nếu trong 30 phút sau, người trực nhập khách qua bot, khách đó được ghi luôn chiến dịch quảng cáo của lượt bấm.
 3. **Đếm lượt bấm** mỗi ngày, hiện ở đầu trang **CRM → Khách hàng**.
 
-Tính năng bật sẵn. Muốn tắt báo Telegram cho lượt bấm: **CRM → Cài đặt** → bỏ tích **"Báo vào nhóm Telegram mỗi khi có khách bấm"**.
 
 ## Phần 7: Nhận khách từ quảng cáo (Facebook / Google / TikTok)
 

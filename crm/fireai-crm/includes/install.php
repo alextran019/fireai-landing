@@ -15,6 +15,10 @@ function fireai_crm_activate() {
 	if ( ! get_option( 'fireai_crm_installed_at' ) ) {
 		update_option( 'fireai_crm_installed_at', current_time( 'mysql' ), false );
 	}
+	// Mốc bắt đầu đo thời gian phản hồi: khách vào trước đó không có giờ liên hệ chính xác.
+	if ( ! get_option( 'fireai_crm_response_since' ) ) {
+		update_option( 'fireai_crm_response_since', current_time( 'mysql' ), false );
+	}
 
 	$settings = get_option( 'fireai_crm_settings' );
 	if ( ! is_array( $settings ) ) {
@@ -35,7 +39,10 @@ function fireai_crm_activate() {
 	if ( '' !== $previous && version_compare( $previous, '5', '<' ) ) {
 		fireai_crm_migrate_statuses();
 	}
-	fireai_crm_schedule_digest();
+	if ( '' !== $previous && version_compare( $previous, '6', '<' ) ) {
+		fireai_crm_migrate_response_tracking();
+	}
+	fireai_crm_schedule_reminders();
 }
 
 /**
@@ -52,6 +59,23 @@ function fireai_crm_migrate_statuses() {
 	foreach ( $map as $old => $new ) {
 		$wpdb->update( $table, array( 'status' => $new ), array( 'status' => $old ) );
 	}
+}
+
+/**
+ * Bản 1.4: tắt báo lượt bấm Gọi/Zalo (gây rác nhóm) và bắt đầu đo thời gian phản hồi.
+ * Khách có từ trước không bị nhắc phản hồi (đã có trong tin nhắc buổi sáng).
+ */
+function fireai_crm_migrate_response_tracking() {
+	global $wpdb;
+	$table = fireai_crm_table( 'leads' );
+
+	$settings = get_option( 'fireai_crm_settings' );
+	if ( is_array( $settings ) ) {
+		$settings['click_notify'] = 0;
+		update_option( 'fireai_crm_settings', $settings, false );
+	}
+	$wpdb->query( "UPDATE {$table} SET first_contact_at = updated_at WHERE first_contact_at IS NULL AND ( status <> 'new' OR created_by > 0 )" ); // phpcs:ignore
+	$wpdb->query( "UPDATE {$table} SET sla_level = 2 WHERE first_contact_at IS NULL" ); // phpcs:ignore
 }
 
 function fireai_crm_maybe_upgrade() {
@@ -118,6 +142,8 @@ function fireai_crm_install_tables() {
 			assigned_to bigint(20) unsigned NOT NULL DEFAULT 0,
 			message text NULL,
 			next_contact date NULL DEFAULT NULL,
+			first_contact_at datetime NULL DEFAULT NULL,
+			sla_level tinyint(1) unsigned NOT NULL DEFAULT 0,
 			value bigint(20) unsigned NOT NULL DEFAULT 0,
 			external_ref varchar(191) NOT NULL DEFAULT '',
 			raw longtext NULL,

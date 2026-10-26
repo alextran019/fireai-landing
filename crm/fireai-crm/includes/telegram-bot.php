@@ -165,6 +165,7 @@ function fireai_crm_telegram_handle_message( array $message ) {
 			'assigned_to' => 0,
 			'created_by'  => $wp_user,
 			'silent'      => true,
+			'contacted'   => true,
 			'raw'         => array(
 				'telegram' => array(
 					'from' => $tg_name . ( isset( $from['username'] ) ? ' (@' . $from['username'] . ')' : '' ),
