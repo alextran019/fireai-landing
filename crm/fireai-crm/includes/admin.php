@@ -254,6 +254,7 @@ function fireai_crm_page_list() {
 		<?php if ( fireai_crm_can_manage() ) : ?>
 			<a href="<?php echo esc_url( wp_nonce_url( add_query_arg( array_merge( $f, array( 'action' => 'fireai_crm_export' ) ), admin_url( 'admin-post.php' ) ), 'fireai_crm_export' ) ); ?>" class="page-title-action">Xuất Excel</a>
 		<?php endif; ?>
+		<div class="crm-stats">
 		<?php $clicks = fireai_crm_clicks_today(); ?>
 		<span class="crm-today">Hôm nay: <strong><?php echo esc_html( $today ); ?></strong> khách mới · <strong><?php echo esc_html( $clicks['call'] ); ?></strong> lượt bấm Gọi · <strong><?php echo esc_html( $clicks['zalo'] ); ?></strong> lượt bấm Zalo</span>
 		<?php $follow = fireai_crm_followup_counts(); ?>
@@ -264,10 +265,11 @@ function fireai_crm_page_list() {
 				<strong><?php echo esc_html( $follow['today'] ); ?></strong> hẹn hôm nay · <strong><?php echo esc_html( $follow['fresh'] ); ?></strong> khách mới chưa xử lý
 			</a>
 		<?php endif; ?>
+		</div>
 		<hr class="wp-header-end">
 		<?php fireai_crm_notice(); ?>
 
-		<ul class="subsubsub">
+		<ul class="subsubsub crm-tabs">
 			<?php
 			$all   = array_sum( wp_list_pluck( $counts, 'c' ) );
 			$links = array( '<a href="' . esc_url( add_query_arg( 'status', false, add_query_arg( $f, $base ) ) ) . '"' . ( '' === $f['status'] ? ' class="current"' : '' ) . '>Tất cả <span class="count">(' . (int) $all . ')</span></a>' );
@@ -284,6 +286,9 @@ function fireai_crm_page_list() {
 			<input type="hidden" name="status" value="<?php echo esc_attr( $f['status'] ); ?>">
 			<?php if ( $f['follow'] ) : ?><input type="hidden" name="follow" value="<?php echo esc_attr( $f['follow'] ); ?>"><?php endif; ?>
 			<input type="search" name="s" value="<?php echo esc_attr( $f['s'] ); ?>" placeholder="Tên, SĐT, email, chiến dịch...">
+			<?php $more = '' !== $f['source'] || '' !== $f['assigned'] || '' !== $f['from'] || '' !== $f['to']; ?>
+			<details class="crm-more-filters"<?php echo $more ? ' open' : ''; ?>>
+			<summary class="button">Bộ lọc<?php echo $more ? ' •' : ''; ?></summary>
 			<select name="source">
 				<option value="">Mọi nguồn</option>
 				<?php foreach ( $sources as $key => $label ) : ?>
@@ -301,8 +306,9 @@ function fireai_crm_page_list() {
 			<?php endif; ?>
 			<label>Từ <input type="date" name="from" value="<?php echo esc_attr( $f['from'] ); ?>"></label>
 			<label>đến <input type="date" name="to" value="<?php echo esc_attr( $f['to'] ); ?>"></label>
-			<button class="button">Lọc</button>
 			<a class="button-link" href="<?php echo esc_url( $base ); ?>">Xóa lọc</a>
+			</details>
+			<button class="button crm-filter-submit">Lọc</button>
 		</form>
 
 		<?php $can_delete = fireai_crm_can_manage(); ?>
@@ -323,10 +329,10 @@ function fireai_crm_page_list() {
 						<td class="check-column"><input type="checkbox" id="crm-check-all" aria-label="Chọn tất cả"></td>
 					<?php endif; ?>
 					<th class="col-date">Ngày</th>
-					<th>Khách hàng</th>
+					<th class="col-name">Khách hàng</th>
 					<th class="col-phone">Điện thoại</th>
 					<th class="col-source">Nguồn</th>
-					<th>Nội dung</th>
+					<th class="col-msg">Nội dung</th>
 					<th class="col-status">Trạng thái</th>
 					<th class="col-user">Phụ trách</th>
 				</tr>
@@ -342,15 +348,16 @@ function fireai_crm_page_list() {
 						<th scope="row" class="check-column"><input type="checkbox" form="crm-bulk" name="ids[]" value="<?php echo esc_attr( $lead->id ); ?>" class="crm-check" aria-label="Chọn khách"></th>
 					<?php endif; ?>
 					<td class="col-date"><?php echo esc_html( mysql2date( 'd/m/Y H:i', $lead->created_at ) ); ?></td>
-					<td>
+					<td class="col-name">
 						<strong><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( '' !== $lead->name ? $lead->name : '(Chưa có tên)' ); ?></a></strong>
 						<?php if ( $lead->email ) : ?><br><span class="crm-muted"><?php echo esc_html( $lead->email ); ?></span><?php endif; ?>
 					</td>
 					<td class="col-phone">
 						<?php if ( $lead->phone ) : ?>
-							<a href="tel:<?php echo esc_attr( $lead->phone ); ?>"><?php echo esc_html( $lead->phone ); ?></a>
+							<a class="crm-tel" href="tel:<?php echo esc_attr( $lead->phone ); ?>"><span class="crm-mobile-only">📞 </span><?php echo esc_html( $lead->phone ); ?></a>
+							<a class="crm-zalo" href="<?php echo esc_url( 'https://zalo.me/' . $lead->phone ); ?>" target="_blank" rel="noopener">Zalo</a>
 							<?php if ( isset( $dupes[ $lead->phone ] ) ) : ?>
-								<br><a class="crm-badge crm-dupe" href="<?php echo esc_url( add_query_arg( 's', $lead->phone, $base ) ); ?>">Trùng SĐT</a>
+								<a class="crm-badge crm-dupe" href="<?php echo esc_url( add_query_arg( 's', $lead->phone, $base ) ); ?>">Trùng SĐT</a>
 							<?php endif; ?>
 						<?php endif; ?>
 					</td>
@@ -358,7 +365,7 @@ function fireai_crm_page_list() {
 						<?php echo esc_html( fireai_crm_label( $sources, $lead->source ) ); ?>
 						<?php if ( $lead->campaign ) : ?><br><span class="crm-muted"><?php echo esc_html( $lead->campaign ); ?></span><?php endif; ?>
 					</td>
-					<td class="crm-muted"><?php echo esc_html( wp_trim_words( (string) $lead->message, 18 ) ); ?></td>
+					<td class="col-msg crm-muted"><?php echo esc_html( wp_trim_words( (string) $lead->message, 18 ) ); ?></td>
 					<td class="col-status">
 						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 							<input type="hidden" name="action" value="fireai_crm_quick_status">
@@ -382,7 +389,7 @@ function fireai_crm_page_list() {
 							<div class="crm-muted"><?php echo esc_html( fireai_crm_money( $lead->value ) ); ?>/tháng</div>
 						<?php endif; ?>
 					</td>
-					<td class="col-user"><?php echo esc_html( fireai_crm_user_name( $lead->assigned_to ) ); ?></td>
+					<td class="col-user<?php echo $lead->assigned_to ? '' : ' is-empty'; ?>"><span class="crm-mobile-only">Phụ trách: </span><?php echo esc_html( fireai_crm_user_name( $lead->assigned_to ) ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
@@ -537,6 +544,13 @@ function fireai_crm_page_detail( $id ) {
 			· Nguồn: <?php echo esc_html( fireai_crm_label( fireai_crm_sources(), $lead->source ) ); ?>
 			<?php if ( $lead->created_by ) : ?>· Người nhập: <?php echo esc_html( fireai_crm_user_name( $lead->created_by ) ); ?><?php endif; ?>
 		</p>
+		<div class="crm-action-bar">
+			<?php if ( $lead->phone ) : ?>
+				<a class="button button-primary" href="tel:<?php echo esc_attr( $lead->phone ); ?>">📞 Gọi <?php echo esc_html( $lead->phone ); ?></a>
+				<a class="button crm-zalo-button" href="<?php echo esc_url( 'https://zalo.me/' . $lead->phone ); ?>" target="_blank" rel="noopener">💬 Zalo</a>
+			<?php endif; ?>
+			<a class="button" href="#crm-note">📝 Ghi chú</a>
+		</div>
 		<?php fireai_crm_notice(); ?>
 
 		<?php if ( $dupes ) : ?>
@@ -573,7 +587,7 @@ function fireai_crm_page_detail( $id ) {
 
 			<div class="crm-detail-side">
 				<h2>Lịch sử chăm sóc</h2>
-				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" id="crm-note">
 					<input type="hidden" name="action" value="fireai_crm_note">
 					<input type="hidden" name="id" value="<?php echo esc_attr( $lead->id ); ?>">
 					<?php wp_nonce_field( 'fireai_crm_note_' . $lead->id ); ?>

@@ -42,6 +42,11 @@ function fireai_crm_activate() {
 	if ( '' !== $previous && version_compare( $previous, '6', '<' ) ) {
 		fireai_crm_migrate_response_tracking();
 	}
+	if ( '' !== $previous && version_compare( $previous, '7', '<' ) ) {
+		// Khách người trực nhập qua bot trước bản 1.4 đã được nói chuyện: không đánh dấu "chưa liên hệ".
+		global $wpdb;
+		$wpdb->query( 'UPDATE ' . fireai_crm_table( 'leads' ) . " SET first_contact_at = created_at WHERE first_contact_at IS NULL AND raw LIKE '%\"telegram\":%'" ); // phpcs:ignore
+	}
 	fireai_crm_schedule_reminders();
 }
 

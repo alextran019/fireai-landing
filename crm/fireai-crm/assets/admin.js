@@ -6,6 +6,12 @@
 		});
 	});
 
+	// Màn hình lớn: mở sẵn "Bộ lọc" để các ô lọc nằm cùng hàng như trước.
+	var moreFilters = document.querySelector('.crm-more-filters');
+	if (moreFilters && window.matchMedia('(min-width: 783px)').matches) {
+		moreFilters.open = true;
+	}
+
 	// Chọn nhiều khách để xóa.
 	var checkAll = document.getElementById('crm-check-all');
 	var bulkButton = document.getElementById('crm-bulk-delete');
