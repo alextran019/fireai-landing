@@ -1,4 +1,4 @@
-import anthropic
+import httpx
 
 import config
 
@@ -20,12 +20,32 @@ def load_knowledge() -> str:
     return "\n\n---\n\n".join(parts)
 
 
-_client = anthropic.AsyncAnthropic(api_key=config.ANTHROPIC_API_KEY)
 _knowledge = load_knowledge()
+_http = httpx.AsyncClient(timeout=60)
+
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
 
-async def answer(history: list[dict]) -> str:
-    resp = await _client.messages.create(
+async def _answer_gemini(history: list[dict]) -> str:
+    system = SYSTEM_RULES + "\n\nTÀI LIỆU:\n\n" + _knowledge
+    r = await _http.post(
+        GEMINI_URL,
+        headers={"Authorization": f"Bearer {config.GEMINI_API_KEY}"},
+        json={
+            "model": config.GEMINI_MODEL,
+            "max_tokens": 800,
+            "messages": [{"role": "system", "content": system}, *history],
+        },
+    )
+    r.raise_for_status()
+    return r.json()["choices"][0]["message"]["content"].strip()
+
+
+async def _answer_anthropic(history: list[dict]) -> str:
+    import anthropic
+
+    client = anthropic.AsyncAnthropic(api_key=config.ANTHROPIC_API_KEY)
+    resp = await client.messages.create(
         model=config.CLAUDE_MODEL,
         max_tokens=800,
         system=[
@@ -36,3 +56,9 @@ async def answer(history: list[dict]) -> str:
         messages=history,
     )
     return "".join(b.text for b in resp.content if b.type == "text").strip()
+
+
+async def answer(history: list[dict]) -> str:
+    if config.LLM_PROVIDER == "anthropic":
+        return await _answer_anthropic(history)
+    return await _answer_gemini(history)

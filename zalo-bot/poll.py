@@ -15,8 +15,9 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 async def main() -> None:
     if not config.ZALO_BOT_TOKEN:
         sys.exit("Thiếu ZALO_BOT_TOKEN: kiểm tra file .env (phải tên đúng là .env, cùng thư mục với poll.py).")
-    if not config.ANTHROPIC_API_KEY:
-        sys.exit("Thiếu ANTHROPIC_API_KEY trong file .env.")
+    missing = config.llm_key_missing()
+    if missing:
+        sys.exit(f"Thiếu {missing} trong file .env.")
     print("Bot:", await bot.get_me())
     print("Đang chờ tin nhắn... (Ctrl+C để dừng)")
     while True:
