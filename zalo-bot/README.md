@@ -23,3 +23,7 @@ Sửa/thêm file `.md` trong `knowledge/`, khởi động lại bot. Tổng tài
 - Tài liệu PCCC gốc (79 trang, bản scan) mới nạp bảng tóm tắt và mục báo cháy tự động; cần nạp thêm phần bình chữa cháy, họng nước, chữa cháy tự động, xử phạt...
 - Lịch sử hội thoại đang lưu trong RAM.
 - Chuyển khách cho nhân viên thật (hiện chỉ đưa hotline).
+
+## Deploy 24/7
+- Docker: `docker build -t fireai-zalo-bot . && docker run -d --restart unless-stopped --env-file .env fireai-zalo-bot`
+- Railway/Render: trỏ vào thư mục `zalo-bot` (Dockerfile), đặt biến môi trường như `.env.example`, chạy dạng Worker (không cần cổng).
